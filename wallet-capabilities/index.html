@@ -100,28 +100,21 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Wallet Typology</label>
                         <div class="space-y-1.5" id="filter-typology">
-                            <label class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer w-fit">
-                                <input type="checkbox" value="natural" onchange="applyFilters()" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
-                                Natural Persons
-                            </label>
-                            <label class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer w-fit">
-                                <input type="checkbox" value="legal" onchange="applyFilters()" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
-                                Legal Persons
-                            </label>
+                            <!-- Checkboxes dynamically injected from constants -->
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Protocols Supported</label>
                         <div class="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar pr-2" id="filter-protocol">
-                            <!-- Checkboxes dynamically injected -->
+                            <!-- Checkboxes dynamically injected from constants -->
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">Encoding Formats</label>
                         <div class="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar pr-2" id="filter-encoding">
-                            <!-- Checkboxes dynamically injected -->
+                            <!-- Checkboxes dynamically injected from constants -->
                         </div>
                     </div>
                 </div>
@@ -286,6 +279,23 @@
     </div>
 
     <script>
+        // --- Predefined Constant Vocabularies ---
+        // Modify these arrays if your complete CSV contains additional valid options.
+        const PREDEFINED_VALUES = {
+            typologies: [
+                "Wallets that can be used by natural persons",
+                "Wallets that can be used by legal persons"
+            ],
+            protocols: [
+                "ISO/IEC 18013-5:2021",
+                "W3C Verifiable Credentials 1.1"
+            ],
+            encodings: [
+                "JSON",
+                "CBOR"
+            ]
+        };
+
         // --- Application State ---
         let dataset = [];          // Complete parsed dataset
         let filteredDataset = [];  // Dataset post-filtering
@@ -305,7 +315,7 @@
             document.getElementById('loader-overlay').classList.add('hidden-section');
             document.getElementById('main-layout').classList.remove('hidden-section');
             
-            // Generate filter dropdown options dynamically from dataset
+            // Generate filter dropdown options dynamically from constants
             populateFilterOptions();
 
             // Initialize filtered dataset and render
@@ -315,18 +325,18 @@
         // --- Filtering and Sidebar Logic ---
 
         function populateFilterOptions() {
-            const protocols = new Set();
-            const encodings = new Set();
-
-            // Extract unique values across the entire dataset
-            dataset.forEach(entry => {
-                parseChips(entry['Standards supported']).forEach(p => protocols.add(p));
-                parseChips(entry['Encoding formats']).forEach(e => encodings.add(e));
-            });
+            // Populate DOM Checkboxes for Typologies
+            const typologyContainer = document.getElementById('filter-typology');
+            typologyContainer.innerHTML = PREDEFINED_VALUES.typologies.map(typology => `
+                <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
+                    <input type="checkbox" value="${typology.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
+                    <span class="break-words">${typology}</span>
+                </label>
+            `).join('');
 
             // Populate DOM Checkboxes for Protocols
             const protocolContainer = document.getElementById('filter-protocol');
-            protocolContainer.innerHTML = Array.from(protocols).sort().map(protocol => `
+            protocolContainer.innerHTML = PREDEFINED_VALUES.protocols.map(protocol => `
                 <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
                     <input type="checkbox" value="${protocol.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
                     <span class="break-words">${protocol}</span>
@@ -335,7 +345,7 @@
 
             // Populate DOM Checkboxes for Encoding
             const encodingContainer = document.getElementById('filter-encoding');
-            encodingContainer.innerHTML = Array.from(encodings).sort().map(encoding => `
+            encodingContainer.innerHTML = PREDEFINED_VALUES.encodings.map(encoding => `
                 <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
                     <input type="checkbox" value="${encoding.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
                     <span class="break-words">${encoding}</span>
@@ -373,26 +383,23 @@
                     if (resVal === 'No' && hasRes) match = false;
                 }
 
-                // 2. Typology Filter (Multi-Select AND logic)
+                // 2. Typology Filter (Exact Constant Match)
                 if (typVals.length > 0 && match) {
-                    const kind = String(data['Kind of wallet'] || '').toLowerCase();
-                    // Entry must contain ALL selected typologies
-                    const hasAllSelected = typVals.every(val => kind.includes(val));
+                    const entryTypologies = parseChips(data['Kind of wallet']);
+                    const hasAllSelected = typVals.every(val => entryTypologies.includes(val));
                     if (!hasAllSelected) match = false;
                 }
 
-                // 3. Protocol Filter (Multi-Select AND logic)
+                // 3. Protocol Filter (Exact Constant Match)
                 if (protVals.length > 0 && match) {
                     const protos = parseChips(data['Standards supported']);
-                    // Entry must contain ALL selected protocols
                     const hasAllSelected = protVals.every(val => protos.includes(val));
                     if (!hasAllSelected) match = false;
                 }
 
-                // 4. Encoding Filter (Multi-Select AND logic)
+                // 4. Encoding Filter (Exact Constant Match)
                 if (encVals.length > 0 && match) {
                     const encs = parseChips(data['Encoding formats']);
-                    // Entry must contain ALL selected encodings
                     const hasAllSelected = encVals.every(val => encs.includes(val));
                     if (!hasAllSelected) match = false;
                 }
@@ -560,10 +567,10 @@
                 cardBody.classList.remove('opacity-40', 'pointer-events-none', 'grayscale', 'select-none');
             }
 
-            // 4. Typology
-            const kindText = String(data['Kind of wallet'] || '').toLowerCase();
-            setTypology('ui-natural-persons', kindText.includes('natural'), 'blue');
-            setTypology('ui-legal-persons', kindText.includes('legal'), 'gray');
+            // 4. Typology (Exact Constant Match)
+            const entryTypologies = parseChips(data['Kind of wallet']);
+            setTypology('ui-natural-persons', entryTypologies.includes('Wallets that can be used by natural persons'), 'blue');
+            setTypology('ui-legal-persons', entryTypologies.includes('Wallets that can be used by legal persons'), 'gray');
 
             // 5. Infrastructure
             const deploymentModels = parseChips(data['Deployment model']);
@@ -645,6 +652,45 @@
                 });
                 
                 if(obj['nr in Portal'] || obj['Short name']) {
+                    
+                    // --- Structural Validation against Predefined Constants ---
+                    let isValid = true;
+                    const logPrefix = `Skipped Entry [Portal ID: ${obj['nr in Portal'] || 'N/A'} - ${obj['Short name']}]`;
+
+                    // Validate Typologies
+                    const entryTypologies = parseChips(obj['Kind of wallet']);
+                    for (const t of entryTypologies) {
+                        if (!PREDEFINED_VALUES.typologies.includes(t)) {
+                            console.error(`${logPrefix}: Unknown Typology value '${t}'`);
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if (!isValid) continue;
+
+                    // Validate Protocols
+                    const entryProtocols = parseChips(obj['Standards supported']);
+                    for (const p of entryProtocols) {
+                        if (!PREDEFINED_VALUES.protocols.includes(p)) {
+                            console.error(`${logPrefix}: Unknown Protocol value '${p}'`);
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if (!isValid) continue;
+
+                    // Validate Encodings
+                    const entryEncodings = parseChips(obj['Encoding formats']);
+                    for (const e of entryEncodings) {
+                        if (!PREDEFINED_VALUES.encodings.includes(e)) {
+                            console.error(`${logPrefix}: Unknown Encoding value '${e}'`);
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if (!isValid) continue;
+
+                    // Push valid entry to operational dataset
                     parsedData.push(obj);
                 }
             }
