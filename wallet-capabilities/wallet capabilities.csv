@@ -42,7 +42,7 @@ In DC4EU, we contributed by providing our holder wallet, enabling the issuance a
 141;ORANGE BUSINESS;Orange Business;TRUE;Yes;"Wallets that can be used by legal persons ;";"Server wallet on cloud ;";https://www.orange-business.com/fr/solutions/securite/live-identity;"QR Code;";" W3C Verifiable Credentials 1.1;";"JSON;";"JWT (including SD-JWT) ;";We can provide tools for third parties ecosystem management, useful for data spaces with support of OpenID Federation and TRAIN trust frameworks;No, except participation to technical and functional activities;No
 148;Rockwood;Rockwood Digital Europe b.v.;FALSE;;;;;;;;;;;
 159;Youverse;YooniK S.A. (wisdom guardian);FALSE;;;;;;;;;;;
-160;Yubico;Yubico AB;FALSE;;;;;;;;;;;
+160;Yubico;Yubico AB;FALSE;;;;https://github.com/wwWallet;;;;;Note: Yubico is member of the wwWallet consortium, together with Sunet, GUnet, and Siros - see the GUnet entry for wwWallet;;
 
 75;Spherity;Spherity GmbH;TRUE;Yes;"Wallets that can be used by legal persons ;";"Server wallet on cloud ;Server wallet that can be installed on premise ;";"https://www.spherity.com/eida
 https://oid.spherity.com/architecture";"No proximity communication is supported by the cloud wallet;";" W3C Verifiable Credentials 1.1;";"JSON;";"JSON-LD;";Spherity's Business Wallet supports the management of identities for legal person and organisation members like legal representatives and entities who have received power of attorney.;EUBW-specific requirement analysis within the use cases and alignment in the wallet group;EWC participant, in particular legal person wallet usage in a banking use case (account opening)
