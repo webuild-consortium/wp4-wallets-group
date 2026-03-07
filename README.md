@@ -8,4 +8,4 @@ Currently, it hosts the following apps:
 
 **Important Disclaimers:**
 
-•	The data presented in this section are based entirely on self-declarations by Wallet Providers collected via a stocktaking questionnaire. Responses were gathered during the first month of the WeBuild project. The information may not be fully accurate, complete, or up to date. Architectural approaches, deployment options, and conformance claims should be verified through direct engagement with providers as the project progresses.
+• The data presented in this section are based entirely on self-declarations by Wallet Providers collected via a stocktaking questionnaire. Responses were gathered during the first month of the WeBuild project. The information may not be fully accurate, complete, or up to date. Architectural approaches, deployment options, and conformance claims should be verified through direct engagement with providers as the project progresses.
