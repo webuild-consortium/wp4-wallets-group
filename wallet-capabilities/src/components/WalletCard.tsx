@@ -18,12 +18,12 @@ export const WalletCard: React.FC<CardProps> = ({ entry, index, total, onNavigat
         const ref = useRef<HTMLParagraphElement>(null);
         useEffect(() => { if (ref.current) setIsOverflowing(ref.current.scrollHeight > ref.current.clientHeight); }, [text]);
         return (
-            <div>
+            <div onClick={() => isOverflowing && onOpenModal(title, text)} className={isOverflowing ? 'cursor-pointer group' : ''}>
                 <h4 className="text-sm font-semibold text-gray-800 mb-1">{title}</h4>
-                <p ref={ref} onClick={() => isOverflowing && onOpenModal(title, text)} className={`text-sm text-gray-600 line-clamp-2 ${isOverflowing ? 'cursor-pointer hover:text-blue-600' : ''} ${!text ? 'italic text-gray-400' : ''}`}>
+                <p ref={ref} className={`text-sm text-gray-600 line-clamp-2 ${isOverflowing ? 'group-hover:text-blue-600' : ''} ${!text ? 'italic text-gray-400' : ''}`}>
                     {text || 'Not specified'}
                 </p>
-                {isOverflowing && <span className="text-xs text-blue-500 italic">(Click to view full)</span>}
+                {isOverflowing && <span className="text-xs text-blue-500 italic group-hover:text-blue-600">(Click to view full)</span>}
             </div>
         );
     };
