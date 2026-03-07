@@ -19,25 +19,13 @@
             overflow: hidden;
             transition: all 0.2s ease-in-out;
         }
-        .text-truncate.expanded {
-            -webkit-line-clamp: unset;
-            background-color: #f9fafb;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-        }
         
         /* Apply interactive styling only when overflow is detected */
         .text-truncate.has-overflow {
             cursor: pointer;
         }
-        .text-truncate.has-overflow:not(.expanded)::after {
-            content: " (Click to expand)";
-            font-size: 0.75rem;
-            color: #3b82f6;
-            font-style: italic;
-        }
-        .text-truncate.has-overflow.expanded::after {
-            content: " (Click to collapse)";
+        .text-truncate.has-overflow::after {
+            content: " (Click to view full)";
             font-size: 0.75rem;
             color: #3b82f6;
             font-style: italic;
@@ -278,35 +266,490 @@
         </div>
     </div>
 
+    <!-- Text Expansion Modal -->
+    <div id="text-modal-overlay" class="fixed inset-0 bg-gray-900/50 z-50 hidden items-center justify-center backdrop-blur-sm" onclick="closeTextModal(event)">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between p-4 border-b border-gray-100">
+                <h3 id="text-modal-title" class="text-lg font-bold text-gray-800">Details</h3>
+                <button onclick="closeTextModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <p id="text-modal-content" class="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap"></p>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- Predefined Constant Vocabularies ---
-        // Modify these arrays if your complete CSV contains additional valid options.
-        const PREDEFINED_VALUES = {
-            typologies: [
-                "Wallets that can be used by natural persons",
-                "Wallets that can be used by legal persons"
-            ],
-            protocols: [
-                "ISO/IEC 18013-5:2021",
-                "W3C Verifiable Credentials 1.1"
-            ],
-            encodings: [
-                "JSON",
-                "CBOR"
-            ]
+        /**
+         * ==========================================
+         * CONFIGURATION & SCHEMA
+         * ==========================================
+         */
+        const CONFIG = {
+            csvFile: 'wallet capabilities.csv',
+            delimiter: ';',
+            headers: {
+                id: 'nr in Portal',
+                shortName: 'Short name',
+                legalName: 'Organizations (Legal Name)',
+                hasResponse: 'Has response ?',
+                providesWallets: 'Provide wallets for UCs?',
+                typology: 'Kind of wallet',
+                deployment: 'Deployment model',
+                offline: 'Offline channels',
+                links: 'Wallet links',
+                protocols: 'Standards supported',
+                encodings: 'Encoding formats',
+                disclosure: 'Selective disclosure',
+                otherWallet: 'Other input (wallet)',
+                otherParticipation: 'Other input (participation)',
+                experience: 'Previous LSP experience'
+            },
+            vocabularies: {
+                typologies: [
+                    "Wallets that can be used by natural persons",
+                    "Wallets that can be used by legal persons"
+                ],
+                protocols: [
+                    "ISO/IEC 18013-5:2021",
+                    "W3C Verifiable Credentials 1.1"
+                ],
+                encodings: [
+                    "JSON",
+                    "CBOR"
+                ]
+            }
         };
 
-        // --- Application State ---
-        let dataset = [];          // Complete parsed dataset
-        let filteredDataset = [];  // Dataset post-filtering
-        let currentIndex = 0;      // Active index relative to filteredDataset
-        const DEFAULT_CSV_PATH = 'wallet capabilities.csv';
+        /**
+         * ==========================================
+         * DATA MODEL
+         * ==========================================
+         */
+        class WalletEntry {
+            constructor(csvRow) {
+                this.raw = csvRow;
+                // Map raw CSV data to internal properties using CONFIG.headers
+                this.id = this._get(CONFIG.headers.id);
+                this.shortName = this._get(CONFIG.headers.shortName) || 'Unknown Organization';
+                this.legalName = this._get(CONFIG.headers.legalName) || 'Name not provided';
+                
+                this.hasResponse = this._asBool(CONFIG.headers.hasResponse);
+                this.providesWallets = this._asBool(CONFIG.headers.providesWallets);
+                
+                this.typologies = this._asArray(CONFIG.headers.typology);
+                this.protocols = this._asArray(CONFIG.headers.protocols);
+                this.encodings = this._asArray(CONFIG.headers.encodings);
+                this.deploymentModels = this._asArray(CONFIG.headers.deployment);
+                this.offlineChannels = this._asArray(CONFIG.headers.offline);
+                this.disclosure = this._asArray(CONFIG.headers.disclosure);
+                
+                this.links = this._extractUrls(this._get(CONFIG.headers.links));
+                
+                this.otherWallet = this._get(CONFIG.headers.otherWallet);
+                this.otherParticipation = this._get(CONFIG.headers.otherParticipation);
+                this.experience = this._get(CONFIG.headers.experience);
+            }
 
-        // --- Core Application Logic ---
+            _get(key) { return this.raw[key] || ''; }
+            
+            _asBool(key) { return /true|yes/i.test(String(this._get(key))); }
+            
+            _asArray(key) { 
+                const val = this._get(key);
+                return val ? val.split(';').map(s => s.trim()).filter(Boolean) : [];
+            }
+
+            _extractUrls(text) {
+                if (!text) return [];
+                return (text.match(/(https?:\/\/[^\s]+)/g) || []);
+            }
+
+            /**
+             * Validates the entry against the defined vocabularies.
+             * Returns { valid: boolean, errors: string[] }
+             */
+            validate() {
+                const errors = [];
+                
+                // Validate Typologies
+                this.typologies.forEach(t => {
+                    if (!CONFIG.vocabularies.typologies.includes(t)) errors.push(`Unknown Typology: ${t}`);
+                });
+
+                // Validate Protocols
+                this.protocols.forEach(p => {
+                    if (!CONFIG.vocabularies.protocols.includes(p)) errors.push(`Unknown Protocol: ${p}`);
+                });
+
+                // Validate Encodings
+                this.encodings.forEach(e => {
+                    if (!CONFIG.vocabularies.encodings.includes(e)) errors.push(`Unknown Encoding: ${e}`);
+                });
+
+                return { valid: errors.length === 0, errors };
+            }
+        }
+
+        /**
+         * ==========================================
+         * APPLICATION STATE
+         * ==========================================
+         */
+        const Store = {
+            data: [],           // All valid WalletEntry objects
+            filteredData: [],   // Currently filtered WalletEntry objects
+            currentIndex: 0,    // Index in filteredData
+            
+            // Helper to get current entry
+            getCurrent() {
+                return this.filteredData[this.currentIndex];
+            }
+        };
+
+        /**
+         * ==========================================
+         * SERVICES
+         * ==========================================
+         */
+
+        const DataService = {
+            /**
+             * Processes raw CSV results into WalletEntry objects
+             */
+            process(results) {
+                const rows = results.data;
+                let headerIndex = -1;
+
+                // Find header row
+                for(let i=0; i < rows.length; i++) {
+                    if(rows[i].includes(CONFIG.headers.id) || rows[i].includes(CONFIG.headers.shortName)) {
+                        headerIndex = i;
+                        break;
+                    }
+                }
+
+                if (headerIndex === -1) {
+                    alert("Could not identify the header row in the CSV file.");
+                    return [];
+                }
+
+                const headers = rows[headerIndex].map(h => h.trim());
+                const parsedData = [];
+
+                for(let i = headerIndex + 1; i < rows.length; i++) {
+                    if (rows[i].length <= 1 && !rows[i][0]) continue;
+                    
+                    // Create raw object from row
+                    let rawObj = {};
+                    headers.forEach((header, index) => {
+                        rawObj[header] = rows[i][index] || "";
+                    });
+                    
+                    // Instantiate Model
+                    if(rawObj[CONFIG.headers.id] || rawObj[CONFIG.headers.shortName]) {
+                        const entry = new WalletEntry(rawObj);
+                        const validation = entry.validate();
+                        
+                        if (validation.valid) {
+                            parsedData.push(entry);
+                        } else {
+                            console.warn(`Skipped Entry [${entry.id}]:`, validation.errors);
+                        }
+                    }
+                }
+                return parsedData;
+            }
+        };
+
+        const FilterService = {
+            /**
+             * Applies current DOM filter state to the dataset
+             */
+            apply(dataset) {
+                const resVal = document.getElementById('filter-response').value;
+                
+                // Extract arrays of checked values
+                const typVals = Array.from(document.querySelectorAll('#filter-typology input:checked')).map(cb => cb.value);
+                const protVals = Array.from(document.querySelectorAll('#filter-protocol input:checked')).map(cb => cb.value);
+                const encVals = Array.from(document.querySelectorAll('#filter-encoding input:checked')).map(cb => cb.value);
+
+                return dataset.filter(entry => {
+                    let match = true;
+
+                    // 1. Has Response Filter
+                    if (resVal !== 'All') {
+                        if (resVal === 'Yes' && !entry.hasResponse) match = false;
+                        if (resVal === 'No' && entry.hasResponse) match = false;
+                    }
+
+                    // 2. Typology Filter
+                    if (typVals.length > 0 && match) {
+                        const hasAllSelected = typVals.every(val => entry.typologies.includes(val));
+                        if (!hasAllSelected) match = false;
+                    }
+
+                    // 3. Protocol Filter
+                    if (protVals.length > 0 && match) {
+                        const hasAllSelected = protVals.every(val => entry.protocols.includes(val));
+                        if (!hasAllSelected) match = false;
+                    }
+
+                    // 4. Encoding Filter
+                    if (encVals.length > 0 && match) {
+                        const hasAllSelected = encVals.every(val => entry.encodings.includes(val));
+                        if (!hasAllSelected) match = false;
+                    }
+
+                    return match;
+                });
+            }
+        };
+
+        const UIService = {
+            init() {
+                this.renderFilterOptions();
+                this.setupTextExpanders();
+            },
+
+            renderFilterOptions() {
+                const createCheckbox = (val) => `
+                    <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
+                        <input type="checkbox" value="${val.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
+                        <span class="break-words">${val}</span>
+                    </label>`;
+
+                document.getElementById('filter-typology').innerHTML = CONFIG.vocabularies.typologies.map(createCheckbox).join('');
+                document.getElementById('filter-protocol').innerHTML = CONFIG.vocabularies.protocols.map(createCheckbox).join('');
+                document.getElementById('filter-encoding').innerHTML = CONFIG.vocabularies.encodings.map(createCheckbox).join('');
+            },
+
+            renderSidebar(filteredData, currentIndex) {
+                const listEl = document.getElementById('sidebar-list');
+                
+                if (filteredData.length === 0) {
+                    listEl.innerHTML = '<p class="text-gray-500 text-sm italic p-2">No entries match the selected filters.</p>';
+                    return;
+                }
+
+                listEl.innerHTML = filteredData.map((entry, index) => {
+                    const isActive = index === currentIndex;
+                    const activeClasses = isActive 
+                        ? 'bg-blue-50 border-blue-200 text-blue-800 shadow-sm' 
+                        : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50';
+                    
+                    return `
+                        <div onclick="selectSidebarEntry(${index})" class="cursor-pointer p-3 border rounded-lg transition-all ${activeClasses}">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-flex items-center justify-center bg-gray-200 text-gray-600 text-[10px] font-bold h-4 w-4 rounded-sm shrink-0">
+                                    ${entry.id || '-'}
+                                </span>
+                                <div class="text-xs font-semibold text-gray-500 truncate">${entry.legalName}</div>
+                            </div>
+                            <div class="text-sm font-bold truncate pl-6">${entry.shortName}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                const activeElement = listEl.children[currentIndex];
+                if (activeElement) {
+                    activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            },
+
+            renderCard(entry, index, total) {
+                const emptyOverlay = document.getElementById('ui-empty-overlay');
+                
+                if (!entry) {
+                    emptyOverlay.classList.remove('hidden');
+                    emptyOverlay.classList.add('flex');
+                    document.getElementById('ui-pagination-text').textContent = `Entry 0 of 0`;
+                    document.getElementById('btn-prev').disabled = true;
+                    document.getElementById('btn-next').disabled = true;
+                    return;
+                }
+                
+                emptyOverlay.classList.add('hidden');
+                emptyOverlay.classList.remove('flex');
+
+                // Header
+                document.getElementById('ui-portal-id').textContent = entry.id || '-';
+                document.getElementById('ui-short-name').textContent = entry.shortName;
+                document.getElementById('ui-legal-name').textContent = entry.legalName;
+
+                // Badges
+                this.setBooleanBadge('ui-has-response', entry.hasResponse, 'bg-green-100 text-green-800 border-green-200', 'bg-gray-100 text-gray-500 border-gray-200');
+                this.setBooleanBadge('ui-provides-wallets', entry.providesWallets, 'bg-blue-100 text-blue-800 border-blue-200', 'bg-gray-100 text-gray-500 border-gray-200');
+
+                // Overlay for No Response
+                const noResponseOverlay = document.getElementById('ui-no-response-overlay');
+                const cardBody = document.getElementById('ui-card-body');
+
+                if (!entry.hasResponse) {
+                    noResponseOverlay.classList.remove('hidden');
+                    noResponseOverlay.classList.add('flex');
+                    cardBody.classList.add('opacity-40', 'pointer-events-none', 'grayscale', 'select-none');
+                } else {
+                    noResponseOverlay.classList.add('hidden');
+                    noResponseOverlay.classList.remove('flex');
+                    cardBody.classList.remove('opacity-40', 'pointer-events-none', 'grayscale', 'select-none');
+                }
+
+                // Typologies
+                this.setTypology('ui-natural-persons', entry.typologies.includes(CONFIG.vocabularies.typologies[0]), 'blue');
+                this.setTypology('ui-legal-persons', entry.typologies.includes(CONFIG.vocabularies.typologies[1]), 'gray');
+
+                // Infrastructure
+                document.getElementById('ui-deployment-model').innerHTML = entry.deploymentModels.length > 0 
+                    ? entry.deploymentModels.join('<br>') 
+                    : '<span class="text-gray-400 italic">Not specified</span>';
+
+                document.getElementById('ui-offline-channels').innerHTML = this.generateChipsHTML(entry.offlineChannels);
+
+                // Links
+                const linksContainer = document.getElementById('ui-wallet-links');
+                if (entry.links.length > 0) {
+                    linksContainer.innerHTML = entry.links.map(link => `
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors w-full group">
+                            <svg class="w-4 h-4 shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            <span class="truncate flex-1" title="${link}">${link.replace(/^https?:\/\//, '')}</span>
+                        </a>
+                    `).join('');
+                } else {
+                    linksContainer.innerHTML = '<span class="text-sm text-gray-400 italic">No valid links provided</span>';
+                }
+
+                // Standards
+                document.getElementById('ui-standards').innerHTML = this.generateChipsHTML(entry.protocols, 'bg-indigo-50 text-indigo-700 border-indigo-100');
+                document.getElementById('ui-encoding').innerHTML = this.generateChipsHTML(entry.encodings, 'bg-amber-50 text-amber-700 border-amber-100');
+                document.getElementById('ui-disclosure').innerHTML = this.generateChipsHTML(entry.disclosure, 'bg-rose-50 text-rose-700 border-rose-100');
+
+                // Qualitative
+                this.setText('ui-other-wallet', entry.otherWallet);
+                this.setText('ui-other-participation', entry.otherParticipation);
+                this.setText('ui-lsp-experience', entry.experience);
+
+                this.setupTextExpanders();
+
+                // Pagination
+                document.getElementById('ui-pagination-text').textContent = `Entry ${index + 1} of ${total}`;
+                document.getElementById('btn-prev').disabled = index === 0;
+                document.getElementById('btn-next').disabled = index === total - 1;
+            },
+
+            // --- UI Helpers ---
+
+            generateChipsHTML(items, colorClass = 'bg-gray-100 text-gray-700 border-gray-200') {
+                if (items.length === 0) return '<span class="text-sm text-gray-400 italic">None specified</span>';
+                return items.map(item => `<span class="inline-flex items-center gap-1 px-2 py-1 ${colorClass} rounded text-xs font-semibold border">${item}</span>`).join('');
+            },
+
+            setBooleanBadge(elementId, isTrue, trueClass, falseClass) {
+                const el = document.getElementById(elementId);
+                el.className = `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${isTrue ? trueClass : falseClass}`;
+            },
+
+            setTypology(elementId, isActive, colorPrefix) {
+                const el = document.getElementById(elementId);
+                const iconBg = el.querySelector('.icon-bg');
+                const label = el.querySelector('.label-text');
+                const check = el.querySelector('.indicator-check');
+
+                if (isActive) {
+                    el.classList.replace('text-gray-400', `text-${colorPrefix}-700`);
+                    iconBg.className = `p-2 rounded-md icon-bg bg-${colorPrefix}-50 text-${colorPrefix}-600`;
+                    label.classList.remove('line-through', 'decoration-gray-300');
+                    check.classList.remove('hidden');
+                } else {
+                    el.classList.replace(`text-${colorPrefix}-700`, 'text-gray-400');
+                    iconBg.className = `p-2 rounded-md icon-bg bg-gray-50 text-gray-400`;
+                    label.classList.add('line-through', 'decoration-gray-300');
+                    check.classList.add('hidden');
+                }
+            },
+
+            setText(id, text) {
+                const el = document.getElementById(id);
+                el.textContent = text && text.trim() ? text.trim() : 'Not specified';
+                el.classList.remove('has-overflow'); 
+                if(!text || !text.trim()) el.classList.add('italic', 'text-gray-400');
+                else el.classList.remove('italic', 'text-gray-400');
+            },
+
+            setupTextExpanders() {
+                document.querySelectorAll('.text-truncate').forEach(element => {
+                    // Remove old listeners by cloning
+                    const newElement = element.cloneNode(true);
+                    element.replaceWith(newElement);
+                    if (newElement.scrollHeight > newElement.clientHeight) {
+                        newElement.classList.add('has-overflow');
+                    }
+                    newElement.addEventListener('click', function() {
+                        if (this.classList.contains('has-overflow')) {
+                            const title = this.previousElementSibling ? this.previousElementSibling.textContent : 'Details';
+                            window.openTextModal(title, this.textContent);
+                        }
+                    });
+                });
+            }
+        }
+
+        /**
+         * ==========================================
+         * CONTROLLER / MAIN LOGIC
+         * ==========================================
+         */
+
+        // Global functions exposed for HTML event handlers
+        window.clearFilters = () => {
+            document.getElementById('filter-response').value = 'All';
+            document.querySelectorAll('#filter-typology input, #filter-protocol input, #filter-encoding input').forEach(cb => cb.checked = false);
+            applyFilters();
+        };
+
+        window.openTextModal = (title, content) => {
+            document.getElementById('text-modal-title').textContent = title;
+            document.getElementById('text-modal-content').textContent = content;
+            const overlay = document.getElementById('text-modal-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeTextModal = () => {
+            const overlay = document.getElementById('text-modal-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            document.body.style.overflow = '';
+        };
+
+        window.applyFilters = () => {
+            Store.filteredData = FilterService.apply(Store.data);
+            Store.currentIndex = 0;
+            renderUI();
+        };
+
+        window.selectSidebarEntry = (index) => {
+            if (index >= 0 && index < Store.filteredData.length) {
+                Store.currentIndex = index;
+                renderUI();
+            }
+        };
+
+        window.navigate = (direction) => {
+            selectSidebarEntry(Store.currentIndex + direction);
+        };
+
+        function renderUI() {
+            UIService.renderSidebar(Store.filteredData, Store.currentIndex);
+            UIService.renderCard(Store.getCurrent(), Store.currentIndex, Store.filteredData.length);
+        }
 
         function initializeApp(data) {
-            dataset = data;
-            if(dataset.length === 0) {
+            Store.data = data;
+            if(Store.data.length === 0) {
                 alert("The uploaded CSV appears to contain no valid data entries.");
                 return;
             }
@@ -315,403 +758,25 @@
             document.getElementById('loader-overlay').classList.add('hidden-section');
             document.getElementById('main-layout').classList.remove('hidden-section');
             
-            // Generate filter dropdown options dynamically from constants
-            populateFilterOptions();
-
-            // Initialize filtered dataset and render
+            UIService.init();
             applyFilters();
         }
 
-        // --- Filtering and Sidebar Logic ---
-
-        function populateFilterOptions() {
-            // Populate DOM Checkboxes for Typologies
-            const typologyContainer = document.getElementById('filter-typology');
-            typologyContainer.innerHTML = PREDEFINED_VALUES.typologies.map(typology => `
-                <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
-                    <input type="checkbox" value="${typology.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
-                    <span class="break-words">${typology}</span>
-                </label>
-            `).join('');
-
-            // Populate DOM Checkboxes for Protocols
-            const protocolContainer = document.getElementById('filter-protocol');
-            protocolContainer.innerHTML = PREDEFINED_VALUES.protocols.map(protocol => `
-                <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
-                    <input type="checkbox" value="${protocol.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
-                    <span class="break-words">${protocol}</span>
-                </label>
-            `).join('');
-
-            // Populate DOM Checkboxes for Encoding
-            const encodingContainer = document.getElementById('filter-encoding');
-            encodingContainer.innerHTML = PREDEFINED_VALUES.encodings.map(encoding => `
-                <label class="flex items-start gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
-                    <input type="checkbox" value="${encoding.replace(/"/g, '&quot;')}" onchange="applyFilters()" class="mt-0.5 w-4 h-4 shrink-0 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer accent-blue-600">
-                    <span class="break-words">${encoding}</span>
-                </label>
-            `).join('');
-        }
-
-        function clearFilters() {
-            // Reset Single Select
-            document.getElementById('filter-response').value = 'All';
-            
-            // Uncheck all checkboxes in the multi-select groups
-            document.querySelectorAll('#filter-typology input[type="checkbox"], #filter-protocol input[type="checkbox"], #filter-encoding input[type="checkbox"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const resVal = document.getElementById('filter-response').value;
-            
-            // Extract arrays of checked values from the checkbox groups
-            const typVals = Array.from(document.querySelectorAll('#filter-typology input:checked')).map(cb => cb.value);
-            const protVals = Array.from(document.querySelectorAll('#filter-protocol input:checked')).map(cb => cb.value);
-            const encVals = Array.from(document.querySelectorAll('#filter-encoding input:checked')).map(cb => cb.value);
-
-            filteredDataset = dataset.filter(data => {
-                let match = true;
-
-                // 1. Has Response Filter (Single Select)
-                if (resVal !== 'All') {
-                    const hasRes = /true|yes/i.test(String(data['Has response ?'] || ''));
-                    if (resVal === 'Yes' && !hasRes) match = false;
-                    if (resVal === 'No' && hasRes) match = false;
-                }
-
-                // 2. Typology Filter (Exact Constant Match)
-                if (typVals.length > 0 && match) {
-                    const entryTypologies = parseChips(data['Kind of wallet']);
-                    const hasAllSelected = typVals.every(val => entryTypologies.includes(val));
-                    if (!hasAllSelected) match = false;
-                }
-
-                // 3. Protocol Filter (Exact Constant Match)
-                if (protVals.length > 0 && match) {
-                    const protos = parseChips(data['Standards supported']);
-                    const hasAllSelected = protVals.every(val => protos.includes(val));
-                    if (!hasAllSelected) match = false;
-                }
-
-                // 4. Encoding Filter (Exact Constant Match)
-                if (encVals.length > 0 && match) {
-                    const encs = parseChips(data['Encoding formats']);
-                    const hasAllSelected = encVals.every(val => encs.includes(val));
-                    if (!hasAllSelected) match = false;
-                }
-
-                return match;
-            });
-
-            currentIndex = 0; // Reset index to top on new filter application
-            renderSidebarList();
-            renderCard(currentIndex);
-        }
-
-        function renderSidebarList() {
-            const listEl = document.getElementById('sidebar-list');
-            
-            if (filteredDataset.length === 0) {
-                listEl.innerHTML = '<p class="text-gray-500 text-sm italic p-2">No entries match the selected filters.</p>';
-                return;
-            }
-
-            listEl.innerHTML = filteredDataset.map((data, index) => {
-                const isActive = index === currentIndex;
-                const activeClasses = isActive 
-                    ? 'bg-blue-50 border-blue-200 text-blue-800 shadow-sm' 
-                    : 'bg-white border-gray-100 text-gray-700 hover:bg-gray-50';
-                
-                return `
-                    <div onclick="selectSidebarEntry(${index})" class="cursor-pointer p-3 border rounded-lg transition-all ${activeClasses}">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="inline-flex items-center justify-center bg-gray-200 text-gray-600 text-[10px] font-bold h-4 w-4 rounded-sm shrink-0">
-                                ${data['nr in Portal'] || '-'}
-                            </span>
-                            <div class="text-xs font-semibold text-gray-500 truncate">${data['Organizations (Legal Name)'] || 'Unknown Org'}</div>
-                        </div>
-                        <div class="text-sm font-bold truncate pl-6">${data['Short name'] || 'Unnamed'}</div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Scroll selected element into view if needed
-            const activeElement = listEl.children[currentIndex];
-            if (activeElement) {
-                activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-
-        function selectSidebarEntry(index) {
-            if (index >= 0 && index < filteredDataset.length) {
-                currentIndex = index;
-                renderCard(currentIndex);
-                renderSidebarList(); // Re-render to update active styling
-            }
-        }
-
-        function navigate(direction) {
-            const newIndex = currentIndex + direction;
-            selectSidebarEntry(newIndex);
-        }
-
-        // --- DOM Rendering Utilities ---
-        
-        function setupTextExpanders() {
-            document.querySelectorAll('.text-truncate').forEach(element => {
-                const newElement = element.cloneNode(true);
-                element.replaceWith(newElement);
-                if (newElement.scrollHeight > newElement.clientHeight) {
-                    newElement.classList.add('has-overflow');
-                }
-                newElement.addEventListener('click', function() {
-                    if (this.classList.contains('has-overflow')) {
-                        this.classList.toggle('expanded');
-                    }
-                });
-            });
-        }
-
-        function extractUrlsFromText(text) {
-            if (!text) return [];
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
-            return text.match(urlRegex) || [];
-        }
-
-        function parseChips(text) {
-            if (!text) return [];
-            return text.split(';').map(s => s.trim()).filter(Boolean);
-        }
-
-        function generateChipsHTML(items, colorClass = 'bg-gray-100 text-gray-700 border-gray-200') {
-            if (items.length === 0) return '<span class="text-sm text-gray-400 italic">None specified</span>';
-            return items.map(item => `<span class="inline-flex items-center gap-1 px-2 py-1 ${colorClass} rounded text-xs font-semibold border">${item}</span>`).join('');
-        }
-
-        function setBooleanBadge(elementId, isTrue, trueClass, falseClass) {
-            const el = document.getElementById(elementId);
-            if (isTrue) {
-                el.className = `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${trueClass}`;
-            } else {
-                el.className = `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${falseClass}`;
-            }
-        }
-
-        function setTypology(elementId, isActive, colorPrefix) {
-            const el = document.getElementById(elementId);
-            const iconBg = el.querySelector('.icon-bg');
-            const label = el.querySelector('.label-text');
-            const check = el.querySelector('.indicator-check');
-
-            if (isActive) {
-                el.classList.replace('text-gray-400', `text-${colorPrefix}-700`);
-                iconBg.className = `p-2 rounded-md icon-bg bg-${colorPrefix}-50 text-${colorPrefix}-600`;
-                label.classList.remove('line-through', 'decoration-gray-300');
-                check.classList.remove('hidden');
-            } else {
-                el.classList.replace(`text-${colorPrefix}-700`, 'text-gray-400');
-                iconBg.className = `p-2 rounded-md icon-bg bg-gray-50 text-gray-400`;
-                label.classList.add('line-through', 'decoration-gray-300');
-                check.classList.add('hidden');
-            }
-        }
-
-        // --- Main Card Renderer ---
-        
-        function renderCard(index) {
-            const emptyOverlay = document.getElementById('ui-empty-overlay');
-            
-            // Handle Empty State
-            if (filteredDataset.length === 0) {
-                emptyOverlay.classList.remove('hidden');
-                emptyOverlay.classList.add('flex');
-                document.getElementById('ui-pagination-text').textContent = `Entry 0 of 0`;
-                document.getElementById('btn-prev').disabled = true;
-                document.getElementById('btn-next').disabled = true;
-                return;
-            }
-            
-            emptyOverlay.classList.add('hidden');
-            emptyOverlay.classList.remove('flex');
-
-            // Render Active Data
-            const data = filteredDataset[index];
-
-            // 1. Header Information
-            document.getElementById('ui-portal-id').textContent = data['nr in Portal'] || '-';
-            document.getElementById('ui-short-name').textContent = data['Short name'] || 'Unknown Organization';
-            document.getElementById('ui-legal-name').textContent = data['Organizations (Legal Name)'] || 'Name not provided';
-
-            // 2. Boolean Indicators 
-            const hasResponse = /true|yes/i.test(String(data['Has response ?'] || ''));
-            const providesWallets = /true|yes/i.test(String(data['Provide wallets for UCs?'] || ''));
-            
-            setBooleanBadge('ui-has-response', hasResponse, 'bg-green-100 text-green-800 border-green-200', 'bg-gray-100 text-gray-500 border-gray-200');
-            setBooleanBadge('ui-provides-wallets', providesWallets, 'bg-blue-100 text-blue-800 border-blue-200', 'bg-gray-100 text-gray-500 border-gray-200');
-
-            // 3. No Response Overlay State
-            const noResponseOverlay = document.getElementById('ui-no-response-overlay');
-            const cardBody = document.getElementById('ui-card-body');
-
-            if (!hasResponse) {
-                noResponseOverlay.classList.remove('hidden');
-                noResponseOverlay.classList.add('flex');
-                cardBody.classList.add('opacity-40', 'pointer-events-none', 'grayscale', 'select-none');
-            } else {
-                noResponseOverlay.classList.add('hidden');
-                noResponseOverlay.classList.remove('flex');
-                cardBody.classList.remove('opacity-40', 'pointer-events-none', 'grayscale', 'select-none');
-            }
-
-            // 4. Typology (Exact Constant Match)
-            const entryTypologies = parseChips(data['Kind of wallet']);
-            setTypology('ui-natural-persons', entryTypologies.includes('Wallets that can be used by natural persons'), 'blue');
-            setTypology('ui-legal-persons', entryTypologies.includes('Wallets that can be used by legal persons'), 'gray');
-
-            // 5. Infrastructure
-            const deploymentModels = parseChips(data['Deployment model']);
-            document.getElementById('ui-deployment-model').innerHTML = deploymentModels.length > 0 
-                ? deploymentModels.join('<br>') 
-                : '<span class="text-gray-400 italic">Not specified</span>';
-
-            const offlineChannels = parseChips(data['Offline channels']);
-            document.getElementById('ui-offline-channels').innerHTML = generateChipsHTML(offlineChannels);
-
-            // 6. Wallet Links 
-            const links = extractUrlsFromText(data['Wallet links']);
-            const linksContainer = document.getElementById('ui-wallet-links');
-            if (links.length > 0) {
-                linksContainer.innerHTML = links.map(link => `
-                    <a href="${link}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors w-full group">
-                        <svg class="w-4 h-4 shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                        <span class="truncate flex-1" title="${link}">${link.replace(/^https?:\/\//, '')}</span>
-                    </a>
-                `).join('');
-            } else {
-                linksContainer.innerHTML = '<span class="text-sm text-gray-400 italic">No valid links provided</span>';
-            }
-
-            // 7. Standards & Formats
-            document.getElementById('ui-standards').innerHTML = generateChipsHTML(parseChips(data['Standards supported']), 'bg-indigo-50 text-indigo-700 border-indigo-100');
-            document.getElementById('ui-encoding').innerHTML = generateChipsHTML(parseChips(data['Encoding formats']), 'bg-amber-50 text-amber-700 border-amber-100');
-            document.getElementById('ui-disclosure').innerHTML = generateChipsHTML(parseChips(data['Selective disclosure']), 'bg-rose-50 text-rose-700 border-rose-100');
-
-            // 8. Qualitative Data
-            const setText = (id, text) => {
-                const el = document.getElementById(id);
-                el.textContent = text && text.trim() ? text.trim() : 'Not specified';
-                el.classList.remove('expanded', 'has-overflow'); 
-                if(!text || !text.trim()) el.classList.add('italic', 'text-gray-400');
-                else el.classList.remove('italic', 'text-gray-400');
-            };
-
-            setText('ui-other-wallet', data['Other input (wallet)']);
-            setText('ui-other-participation', data['Other input (participation)']);
-            setText('ui-lsp-experience', data['Previous LSP experience']);
-
-            setupTextExpanders();
-
-            // 9. Pagination Validation against filtered limits
-            document.getElementById('ui-pagination-text').textContent = `Entry ${index + 1} of ${filteredDataset.length}`;
-            document.getElementById('btn-prev').disabled = index === 0;
-            document.getElementById('btn-next').disabled = index === filteredDataset.length - 1;
-        }
-
-
-        // --- Data Loading and Parsing ---
-
-        function processCSVRawData(results) {
-            const rows = results.data;
-            let headerIndex = -1;
-
-            for(let i=0; i < rows.length; i++) {
-                if(rows[i].includes('nr in Portal') || rows[i].includes('Short name')) {
-                    headerIndex = i;
-                    break;
-                }
-            }
-
-            if (headerIndex === -1) {
-                alert("Could not identify the header row in the CSV file.");
-                return;
-            }
-
-            const headers = rows[headerIndex].map(h => h.trim());
-            const parsedData = [];
-
-            for(let i = headerIndex + 1; i < rows.length; i++) {
-                if (rows[i].length <= 1 && !rows[i][0]) continue;
-                
-                let obj = {};
-                headers.forEach((header, index) => {
-                    obj[header] = rows[i][index] || "";
-                });
-                
-                if(obj['nr in Portal'] || obj['Short name']) {
-                    
-                    // --- Structural Validation against Predefined Constants ---
-                    let isValid = true;
-                    const logPrefix = `Skipped Entry [Portal ID: ${obj['nr in Portal'] || 'N/A'} - ${obj['Short name']}]`;
-
-                    // Validate Typologies
-                    const entryTypologies = parseChips(obj['Kind of wallet']);
-                    for (const t of entryTypologies) {
-                        if (!PREDEFINED_VALUES.typologies.includes(t)) {
-                            console.error(`${logPrefix}: Unknown Typology value '${t}'`);
-                            isValid = false;
-                            break;
-                        }
-                    }
-                    if (!isValid) continue;
-
-                    // Validate Protocols
-                    const entryProtocols = parseChips(obj['Standards supported']);
-                    for (const p of entryProtocols) {
-                        if (!PREDEFINED_VALUES.protocols.includes(p)) {
-                            console.error(`${logPrefix}: Unknown Protocol value '${p}'`);
-                            isValid = false;
-                            break;
-                        }
-                    }
-                    if (!isValid) continue;
-
-                    // Validate Encodings
-                    const entryEncodings = parseChips(obj['Encoding formats']);
-                    for (const e of entryEncodings) {
-                        if (!PREDEFINED_VALUES.encodings.includes(e)) {
-                            console.error(`${logPrefix}: Unknown Encoding value '${e}'`);
-                            isValid = false;
-                            break;
-                        }
-                    }
-                    if (!isValid) continue;
-
-                    // Push valid entry to operational dataset
-                    parsedData.push(obj);
-                }
-            }
-
-            initializeApp(parsedData);
-        }
+        // --- Data Loading ---
 
         async function loadDefaultCSV() {
             try {
-                const response = await fetch(DEFAULT_CSV_PATH);
+                const response = await fetch(CONFIG.csvFile);
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
                 const csvText = await response.text();
                 
                 Papa.parse(csvText, {
-                    delimiter: ";", 
+                    delimiter: CONFIG.delimiter, 
                     skipEmptyLines: true,
-                    complete: function(results) {
-                        processCSVRawData(results);
-                    }
+                    complete: (results) => initializeApp(DataService.process(results))
                 });
             } catch (error) {
+                console.warn("CSV Auto-load failed:", error);
                 document.getElementById('loading-spinner').classList.add('hidden-section');
                 document.getElementById('manual-upload-section').classList.remove('hidden-section');
             }
@@ -726,11 +791,9 @@
             document.getElementById('loader-message').textContent = "Processing uploaded file...";
 
             Papa.parse(file, {
-                delimiter: ";",
+                delimiter: CONFIG.delimiter,
                 skipEmptyLines: true,
-                complete: function(results) {
-                    processCSVRawData(results);
-                }
+                complete: (results) => initializeApp(DataService.process(results))
             });
         });
 
