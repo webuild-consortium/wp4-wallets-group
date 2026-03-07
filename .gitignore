@@ -1,2 +1,7 @@
 PROJECT_REQUIREMENTS.md
 wallet-capabilities/PROJECT_REQUIREMENTS
+node_modules/
+dist/
+.vscode/
+wallet-capabilities/node_modules/
+wallet-capabilities/dist/
