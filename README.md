@@ -4,7 +4,7 @@ This repository is for the Wallet Providers Group.
 
 Currently, it hosts the following apps:
 
-1. [wallet-capabilities](https://webuild-consortium.github.io/wp4-wallets-group/wallet-capabilities/) - Presents the WeBuild Wallets arsenal based on the WeBuild stocktaking questionnaire conducted by the Wallet Provider Group, which captured self-declared responses from Wallet Providers. Providers described the wallet types they offer, their primary deployment models, and specific technical or architectural details where applicable.
+1. [wallet-capabilities](https://webuild-consortium.github.io/wp4-wallets-group/) - Presents the WeBuild Wallets arsenal based on the WeBuild stocktaking questionnaire conducted by the Wallet Provider Group, which captured self-declared responses from Wallet Providers. Providers described the wallet types they offer, their primary deployment models, and specific technical or architectural details where applicable.
 
 **Important Disclaimers:**
 

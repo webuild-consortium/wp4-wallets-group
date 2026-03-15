@@ -4,7 +4,7 @@ A live UI fed with data from the Wallet Providers on-boarding questionnaire that
 
 ## Access
 
-The UI is available via GitHub Pages at: https://webuild-consortium.github.io/wp4-wallets-group/wallet-capabilities/
+The UI is available via GitHub Pages at: https://webuild-consortium.github.io/wp4-wallets-group/
 
 ## Disclaimer
 
