@@ -35,7 +35,12 @@ This project is a single-page application built using **React**, **TypeScript**,
 
 5.  Open your browser at the URL shown in the terminal (typically `http://localhost:5173`).
 
-> **Note:** The application expects the `wallet capabilities.csv` file to be in the `public` directory.
+> **Note:** The application expects the [`wallet capabilities.csv`](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/public/wallet%20capabilities.csv) file to be in the `public` directory.
+
+### Data
+The application fetches data from the `wallet-capabilities/public/wallet capabilities.csv` [file](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/public/wallet%20capabilities.csv).
+To update the data, you will need to update this CSV file, ensuring that it adheres to the expected format and structure.
+
 
 ### Data Validation
 
