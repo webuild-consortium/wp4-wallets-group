@@ -1,6 +1,5 @@
 import React from 'react';
 import { useWallet } from '../../context/WalletContext';
-import { FilterService } from '../../services/FilterService';
 import { TypologyBadge } from '../../ui/TypologyBadge';
 import { StandardChip } from '../../ui/StandardChip';
 import { ProviderIdentity } from '../../ui/ProviderIdentity';
