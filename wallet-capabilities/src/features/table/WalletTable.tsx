@@ -1,27 +1,29 @@
 import React from 'react';
-import { WalletEntry } from '../types/WalletEntry';
-import { FilterState } from '../services/FilterService';
-import { TypologyBadge } from './shared/TypologyBadge';
-import { StandardChip } from './shared/StandardChip';
-import { ProviderIdentity } from './shared/ProviderIdentity';
-import { FilterControls } from './shared/FilterControls';
+import { useWallet } from '../../context/WalletContext';
+import { FilterService } from '../../services/FilterService';
+import { TypologyBadge } from '../../ui/TypologyBadge';
+import { StandardChip } from '../../ui/StandardChip';
+import { ProviderIdentity } from '../../ui/ProviderIdentity';
+import { FilterControls } from '../../ui/FilterControls';
 
-interface TableProps {
-    entries: WalletEntry[];
-    filters: FilterState;
-    onSelect: (id: string) => void;
-    onFilterChange: (newFilters: FilterState) => void;
-    onClear: () => void;
-}
+export const WalletTable: React.FC = () => {
+    const { 
+        filteredData, filters, 
+        handleSelectProvider, handleFilterChange, handleBackToAll 
+    } = useWallet();
 
-export const WalletTable: React.FC<TableProps> = ({ entries, filters, onSelect, onFilterChange, onClear }) => {
     return (
         <div className="w-full flex flex-col gap-6">
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
                     <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wide">Table Filters</h2>
                 </div>
-                <FilterControls filters={filters} onFilterChange={onFilterChange} onClear={onClear} layout="horizontal" />
+                <FilterControls 
+                    filters={filters} 
+                    onFilterChange={handleFilterChange} 
+                    onClear={handleBackToAll} 
+                    layout="horizontal" 
+                />
             </div>
 
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -36,10 +38,10 @@ export const WalletTable: React.FC<TableProps> = ({ entries, filters, onSelect, 
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {entries.map((entry) => (
+                            {filteredData.map((entry) => (
                                 <tr 
                                     key={entry.id} 
-                                    onClick={() => onSelect(entry.id)}
+                                    onClick={() => handleSelectProvider(entry.id)}
                                     className="hover:bg-blue-50/50 cursor-pointer transition-colors group"
                                 >
                                     <td className="p-4">
@@ -79,7 +81,7 @@ export const WalletTable: React.FC<TableProps> = ({ entries, filters, onSelect, 
                         </tbody>
                     </table>
                 </div>
-                {entries.length === 0 && (
+                {filteredData.length === 0 && (
                     <div className="p-10 text-center text-gray-500 italic">No providers match the criteria.</div>
                 )}
             </div>

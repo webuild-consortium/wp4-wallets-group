@@ -1,6 +1,6 @@
 import React from 'react';
-import { CONFIG } from '../../config';
-import { FilterState } from '../../services/FilterService';
+import { CONFIG } from '../config';
+import { FilterState } from '../services/FilterService';
 
 interface FilterControlsProps {
     filters: FilterState;
@@ -46,7 +46,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({ filters, onFilte
                 <div key={group.key} className={itemClass}>
                     <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">{group.label}</label>
                     <div className={`space-y-1.5 overflow-y-auto custom-scrollbar ${layout === 'horizontal' ? 'max-h-24 bg-gray-50 p-2 rounded-lg border border-gray-100' : 'max-h-32'}`}>
-                        {group.opts.map(opt => (
+                        {group.opts.map((opt: string) => (
                             <label key={opt} className="flex items-start gap-2 text-sm text-gray-600 cursor-pointer hover:text-blue-600 transition-colors">
                                 <input 
                                     type="checkbox" 

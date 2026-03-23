@@ -1,4 +1,4 @@
-import { WalletEntry } from '../types/WalletEntry';
+import { Wallet } from '../types/Wallet';
 
 export interface FilterState {
     response: string;
@@ -8,7 +8,7 @@ export interface FilterState {
 }
 
 export const FilterService = {
-    apply(dataset: WalletEntry[], filters: FilterState): WalletEntry[] {
+    apply(dataset: Wallet[], filters: FilterState): Wallet[] {
         return dataset.filter(entry => {
             let match = true;
 
@@ -32,7 +32,7 @@ export const FilterService = {
         });
     },
 
-    getQualifiedProviders(entries: WalletEntry[]): WalletEntry[] {
+    getQualifiedProviders(entries: Wallet[]): Wallet[] {
         return entries.filter(e => e.hasResponse && e.providesWallets);
     }
 };

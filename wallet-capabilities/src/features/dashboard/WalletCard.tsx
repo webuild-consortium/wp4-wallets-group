@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WalletEntry } from '../types/WalletEntry';
-import { CONFIG } from '../config';
-import { TypologyBadge } from './shared/TypologyBadge';
-import { StandardChip } from './shared/StandardChip';
-import { ProviderIdentity } from './shared/ProviderIdentity';
+import { Wallet } from '../../types/Wallet';
+import { CONFIG } from '../../config';
+import { TypologyBadge } from '../../ui/TypologyBadge';
+import { StandardChip } from '../../ui/StandardChip';
+import { ProviderIdentity } from '../../ui/ProviderIdentity';
 
 interface CardProps {
-    entry: WalletEntry | null;
+    entry: Wallet | null;
     index: number;
     total: number;
     onNavigate: (dir: number) => void;
