@@ -30,5 +30,9 @@ export const FilterService = {
             }
             return match;
         });
+    },
+
+    getQualifiedProviders(entries: WalletEntry[]): WalletEntry[] {
+        return entries.filter(e => e.hasResponse && e.providesWallets);
     }
 };

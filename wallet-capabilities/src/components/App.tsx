@@ -6,6 +6,7 @@ import { DataService } from '../services/DataService';
 import { FilterService, FilterState } from '../services/FilterService';
 import { Sidebar } from './Sidebar';
 import { WalletCard } from './WalletCard';
+import { WalletTable } from './WalletTable';
 import { Modal } from './Modal';
 
 function App() {
@@ -13,9 +14,10 @@ function App() {
   const [filteredData, setFilteredData] = useState<WalletEntry[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<FilterState>({ response: 'All', typologies: [], protocols: [], encodings: [] });
+  const [filters, setFilters] = useState<FilterState>({ response: 'Yes', typologies: [], protocols: [], encodings: [] });
   const [modal, setModal] = useState({ isOpen: false, title: '', content: '' });
   const [searchId, setSearchId] = useState<string | null>(new URLSearchParams(window.location.search).get('id'));
+  const [activeView, setActiveView] = useState<'dashboard' | 'table'>('dashboard');
 
   useEffect(() => {
     fetch(CONFIG.csvFile)
@@ -33,11 +35,11 @@ function App() {
               if (entry) {
                 setFilteredData([entry]);
               } else {
-                setFilteredData(processed);
+                setFilteredData(FilterService.apply(processed, filters));
                 setSearchId(null);
               }
             } else {
-              setFilteredData(processed);
+              setFilteredData(FilterService.apply(processed, filters));
             }
             setLoading(false);
           }
@@ -59,9 +61,22 @@ function App() {
   const handleBackToAll = () => {
     window.history.pushState({}, '', import.meta.env.BASE_URL);
     setSearchId(null);
-    setFilteredData(data);
+    const defaultFilters: FilterState = { response: 'Yes', typologies: [], protocols: [], encodings: [] };
+    setFilters(defaultFilters);
+    setFilteredData(FilterService.apply(data, defaultFilters));
     setCurrentIndex(0);
-    setFilters({ response: 'All', typologies: [], protocols: [], encodings: [] });
+  };
+
+  const handleSelectProvider = (id: string) => {
+    const entry = data.find(e => e.id === id);
+    if (entry) {
+      setSearchId(id);
+      setFilteredData([entry]);
+      setCurrentIndex(0);
+      const url = new URL(window.location.origin + import.meta.env.BASE_URL);
+      url.searchParams.set('id', id);
+      window.history.pushState({}, '', url.toString());
+    }
   };
 
   const handleShare = (id: string) => {
@@ -93,8 +108,8 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 sm:p-8 relative bg-gray-100">
-      {searchId && (
-        <div className="w-full max-w-7xl mb-4">
+      <div className="w-full max-w-7xl flex justify-between items-center mb-6">
+        {searchId ? (
           <button 
             onClick={handleBackToAll}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
@@ -104,10 +119,29 @@ function App() {
             </svg>
             Back to All Wallet Providers
           </button>
+        ) : (
+          <div className="flex bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+            <button 
+              onClick={() => setActiveView('dashboard')}
+              className={`px-4 py-1.5 text-sm font-bold rounded-md transition-all ${activeView === 'dashboard' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Dashboard
+            </button>
+            <button 
+              onClick={() => setActiveView('table')}
+              className={`px-4 py-1.5 text-sm font-bold rounded-md transition-all ${activeView === 'table' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Table View
+            </button>
+          </div>
+        )}
+        <div className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden sm:block">
+          WP4 Wallet Providers Group
         </div>
-      )}
+      </div>
+
       <div className="w-full max-w-7xl flex flex-col md:flex-row gap-6 items-start">
-        {!searchId && (
+        {!searchId && activeView === 'dashboard' && (
           <Sidebar 
             entries={filteredData} 
             currentIndex={currentIndex} 
@@ -117,14 +151,25 @@ function App() {
             onClear={() => handleFilterChange({ response: 'All', typologies: [], protocols: [], encodings: [] })} 
           />
         )}
-        <WalletCard 
-          entry={filteredData[currentIndex]} 
-          index={currentIndex} 
-          total={filteredData.length} 
-          onNavigate={(dir) => setCurrentIndex(prev => prev + dir)} 
-          onOpenModal={(title, content) => setModal({ isOpen: true, title, content })} 
-          onShare={handleShare}
-        />
+        
+        {!searchId && activeView === 'table' ? (
+          <WalletTable 
+            entries={FilterService.getQualifiedProviders(filteredData)} 
+            filters={filters}
+            onSelect={handleSelectProvider} 
+            onFilterChange={handleFilterChange}
+            onClear={() => handleFilterChange({ response: 'Yes', typologies: [], protocols: [], encodings: [] })}
+          />
+        ) : (
+          <WalletCard 
+            entry={filteredData[currentIndex]} 
+            index={currentIndex} 
+            total={filteredData.length} 
+            onNavigate={(dir) => setCurrentIndex(prev => prev + dir)} 
+            onOpenModal={(title, content) => setModal({ isOpen: true, title, content })} 
+            onShare={handleShare}
+          />
+        )}
       </div>
       <Modal isOpen={modal.isOpen} title={modal.title} content={modal.content} onClose={() => setModal({ ...modal, isOpen: false })} />
     </div>
