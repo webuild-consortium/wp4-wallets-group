@@ -15,6 +15,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>({ response: 'All', typologies: [], protocols: [], encodings: [] });
   const [modal, setModal] = useState({ isOpen: false, title: '', content: '' });
+  const [searchId, setSearchId] = useState<string | null>(new URLSearchParams(window.location.search).get('id'));
 
   useEffect(() => {
     fetch(CONFIG.csvFile)
@@ -26,18 +27,49 @@ function App() {
           complete: (results: Papa.ParseResult<string[]>) => {
             const processed = DataService.process(results);
             setData(processed);
-            setFilteredData(processed);
+            
+            if (searchId) {
+              const entry = processed.find(e => e.id === searchId);
+              if (entry) {
+                setFilteredData([entry]);
+              } else {
+                setFilteredData(processed);
+                setSearchId(null);
+              }
+            } else {
+              setFilteredData(processed);
+            }
             setLoading(false);
           }
         });
       })
-      .catch(() => setLoading(false)); // Handle manual upload UI here if needed
+      .catch(() => setLoading(false));
   }, []);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
     setFilteredData(FilterService.apply(data, newFilters));
     setCurrentIndex(0);
+    if (searchId) {
+        window.history.pushState({}, '', import.meta.env.BASE_URL);
+        setSearchId(null);
+    }
+  };
+
+  const handleBackToAll = () => {
+    window.history.pushState({}, '', import.meta.env.BASE_URL);
+    setSearchId(null);
+    setFilteredData(data);
+    setCurrentIndex(0);
+    setFilters({ response: 'All', typologies: [], protocols: [], encodings: [] });
+  };
+
+  const handleShare = (id: string) => {
+    const baseUrl = window.location.origin + import.meta.env.BASE_URL;
+    const url = new URL(baseUrl);
+    url.searchParams.set('id', id);
+    navigator.clipboard.writeText(url.toString());
+    alert('Link copied to clipboard!');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +83,7 @@ function App() {
           setData(processed);
           setFilteredData(processed);
           setLoading(false);
+          setSearchId(null);
         }
       });
     }
@@ -60,9 +93,38 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 sm:p-8 relative bg-gray-100">
+      {searchId && (
+        <div className="w-full max-w-7xl mb-4">
+          <button 
+            onClick={handleBackToAll}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to All Wallet Providers
+          </button>
+        </div>
+      )}
       <div className="w-full max-w-7xl flex flex-col md:flex-row gap-6 items-start">
-        <Sidebar entries={filteredData} currentIndex={currentIndex} filters={filters} onSelect={setCurrentIndex} onFilterChange={handleFilterChange} onClear={() => handleFilterChange({ response: 'All', typologies: [], protocols: [], encodings: [] })} />
-        <WalletCard entry={filteredData[currentIndex]} index={currentIndex} total={filteredData.length} onNavigate={(dir) => setCurrentIndex(prev => prev + dir)} onOpenModal={(title, content) => setModal({ isOpen: true, title, content })} />
+        {!searchId && (
+          <Sidebar 
+            entries={filteredData} 
+            currentIndex={currentIndex} 
+            filters={filters} 
+            onSelect={setCurrentIndex} 
+            onFilterChange={handleFilterChange} 
+            onClear={() => handleFilterChange({ response: 'All', typologies: [], protocols: [], encodings: [] })} 
+          />
+        )}
+        <WalletCard 
+          entry={filteredData[currentIndex]} 
+          index={currentIndex} 
+          total={filteredData.length} 
+          onNavigate={(dir) => setCurrentIndex(prev => prev + dir)} 
+          onOpenModal={(title, content) => setModal({ isOpen: true, title, content })} 
+          onShare={handleShare}
+        />
       </div>
       <Modal isOpen={modal.isOpen} title={modal.title} content={modal.content} onClose={() => setModal({ ...modal, isOpen: false })} />
     </div>

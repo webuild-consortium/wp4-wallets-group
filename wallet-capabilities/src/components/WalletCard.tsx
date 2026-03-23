@@ -8,9 +8,10 @@ interface CardProps {
     total: number;
     onNavigate: (dir: number) => void;
     onOpenModal: (title: string, content: string) => void;
+    onShare: (id: string) => void;
 }
 
-export const WalletCard: React.FC<CardProps> = ({ entry, index, total, onNavigate, onOpenModal }) => {
+export const WalletCard: React.FC<CardProps> = ({ entry, index, total, onNavigate, onOpenModal, onShare }) => {
     if (!entry) return <div className="bg-white rounded-xl shadow-lg border border-gray-200 w-full flex-1 flex items-center justify-center p-10"><h3 className="text-xl font-bold text-gray-800">No Entries Found</h3></div>;
 
     const TextTruncate = ({ title, text }: { title: string, text: string }) => {
@@ -33,7 +34,21 @@ export const WalletCard: React.FC<CardProps> = ({ entry, index, total, onNavigat
             <div className="bg-slate-50 border-b border-gray-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-20 relative">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white font-bold rounded-lg text-xl shadow-sm shrink-0">{entry.id || '-'}</div>
-                    <div className="min-w-0"><h1 className="text-2xl font-bold text-gray-900 truncate">{entry.shortName}</h1><h2 className="text-sm font-medium text-gray-500 truncate">{entry.legalName}</h2></div>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-2xl font-bold text-gray-900 truncate">{entry.shortName}</h1>
+                            <button 
+                                onClick={() => onShare(entry.id)}
+                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                title="Copy direct link"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <h2 className="text-sm font-medium text-gray-500 truncate">{entry.legalName}</h2>
+                    </div>
                 </div>
                 <div className="flex flex-col sm:items-end gap-2 text-sm font-medium shrink-0">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${entry.hasResponse ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>Has Response</span>
@@ -90,11 +105,13 @@ export const WalletCard: React.FC<CardProps> = ({ entry, index, total, onNavigat
                     </div>
                 </div>
             </div>
-            <div className="bg-gray-50 border-t border-gray-200 p-4 flex justify-between items-center z-20 relative">
-                <button onClick={() => onNavigate(-1)} disabled={index === 0} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">Previous</button>
-                <span className="text-sm text-gray-500 font-medium">Entry {index + 1} of {total}</span>
-                <button onClick={() => onNavigate(1)} disabled={index === total - 1} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">Next</button>
-            </div>
+            {total > 1 && (
+                <div className="bg-gray-50 border-t border-gray-200 p-4 flex justify-between items-center z-20 relative">
+                    <button onClick={() => onNavigate(-1)} disabled={index === 0} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">Previous</button>
+                    <span className="text-sm text-gray-500 font-medium">Entry {index + 1} of {total}</span>
+                    <button onClick={() => onNavigate(1)} disabled={index === total - 1} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">Next</button>
+                </div>
+            )}
         </div>
     );
 };
