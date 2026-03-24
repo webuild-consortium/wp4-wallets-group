@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import Papa from 'papaparse';
 import { CONFIG } from '../config';
 import { Wallet } from '../types/Wallet';
@@ -34,10 +34,50 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState<FilterState>({ response: 'Yes', typologies: [], protocols: [], encodings: [] });
-    const [activeView, setActiveView] = useState<'dashboard' | 'table'>('dashboard');
-    const [searchId, setSearchId] = useState<string | null>(new URLSearchParams(window.location.search).get('id'));
+    
+    // Read initial state from URL
+    const getInitialParams = () => {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            view: (params.get('view') === 'table' ? 'table' : 'dashboard') as 'dashboard' | 'table',
+            id: params.get('id')
+        };
+    };
+
+    const initialParams = getInitialParams();
+    const [activeView, setActiveView] = useState<'dashboard' | 'table'>(initialParams.view);
+    const [searchId, setSearchId] = useState<string | null>(initialParams.id);
     const [modal, setModal] = useState({ isOpen: false, title: '', content: '' });
 
+    // Internal helper to update URL and state
+    const navigate = useCallback((view: 'dashboard' | 'table', id: string | null = null) => {
+        const url = new URL(window.location.origin + import.meta.env.BASE_URL);
+        
+        if (view === 'table') {
+            url.searchParams.set('view', 'table');
+        } 
+
+        if (id) {
+            url.searchParams.set('id', id);
+        }
+
+        window.history.pushState({}, '', url.toString());
+        setActiveView(view);
+        setSearchId(id);
+    }, []);
+
+    // Sync state with browser navigation (Back/Forward)
+    useEffect(() => {
+        const handlePopState = () => {
+            const params = new URLSearchParams(window.location.search);
+            setActiveView(params.get('view') === 'table' ? 'table' : 'dashboard');
+            setSearchId(params.get('id'));
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    // Initial Data Load
     useEffect(() => {
         fetch(CONFIG.csvFile)
             .then(res => { if (!res.ok) throw new Error('Failed'); return res.text(); })
@@ -48,18 +88,6 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                     complete: (results: Papa.ParseResult<string[]>) => {
                         const processed = DataService.process(results);
                         setData(processed);
-                        
-                        if (searchId) {
-                            const entry = processed.find(e => e.id === searchId);
-                            if (entry) {
-                                setFilteredData([entry]);
-                            } else {
-                                setFilteredData(FilterService.apply(processed, filters));
-                                setSearchId(null);
-                            }
-                        } else {
-                            setFilteredData(FilterService.apply(processed, filters));
-                        }
                         setLoading(false);
                     }
                 });
@@ -67,40 +95,48 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             .catch(() => setLoading(false));
     }, []);
 
+    // Derived filtering logic
+    useEffect(() => {
+        if (!data.length) return;
+
+        if (searchId) {
+            const entry = data.find(e => e.id === searchId);
+            if (entry) {
+                setFilteredData([entry]);
+                setCurrentIndex(0);
+            } else {
+                setFilteredData(FilterService.apply(data, filters));
+                setSearchId(null);
+            }
+        } else {
+            setFilteredData(FilterService.apply(data, filters));
+        }
+    }, [data, filters, searchId]);
+
     const handleFilterChange = (newFilters: FilterState) => {
         setFilters(newFilters);
-        setFilteredData(FilterService.apply(data, newFilters));
-        setCurrentIndex(0);
         if (searchId) {
-            window.history.pushState({}, '', import.meta.env.BASE_URL);
-            setSearchId(null);
+            navigate(activeView, null); // Clear ID but stay in current view
         }
     };
 
     const handleBackToAll = () => {
-        window.history.pushState({}, '', import.meta.env.BASE_URL);
-        setSearchId(null);
         const defaultFilters: FilterState = { response: 'Yes', typologies: [], protocols: [], encodings: [] };
         setFilters(defaultFilters);
-        setFilteredData(FilterService.apply(data, defaultFilters));
+        navigate(activeView, null);
         setCurrentIndex(0);
     };
 
     const handleSelectProvider = (id: string) => {
-        const entry = data.find(e => e.id === id);
-        if (entry) {
-            setSearchId(id);
-            setFilteredData([entry]);
-            setCurrentIndex(0);
-            const url = new URL(window.location.origin + import.meta.env.BASE_URL);
-            url.searchParams.set('id', id);
-            window.history.pushState({}, '', url.toString());
-        }
+        navigate('dashboard', id);
+    };
+
+    const handleSetActiveView = (view: 'dashboard' | 'table') => {
+        navigate(view, null); // Switching views clears the specific ID selection
     };
 
     const handleShare = (id: string) => {
-        const baseUrl = window.location.origin + import.meta.env.BASE_URL;
-        const url = new URL(baseUrl);
+        const url = new URL(window.location.origin + import.meta.env.BASE_URL);
         url.searchParams.set('id', id);
         navigator.clipboard.writeText(url.toString());
         alert('Link copied to clipboard!');
@@ -109,7 +145,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return (
         <WalletContext.Provider value={{
             data, filteredData, currentIndex, filters, loading, activeView, searchId, modal,
-            setData, setCurrentIndex, setFilters, setActiveView, setSearchId, setModal,
+            setData, setCurrentIndex, setFilters, 
+            setActiveView: handleSetActiveView, 
+            setSearchId, setModal,
             handleFilterChange, handleBackToAll, handleSelectProvider, handleShare
         }}>
             {children}
