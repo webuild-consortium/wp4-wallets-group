@@ -72,9 +72,9 @@ export const DataService = {
 
         // Define which columns should be truncated during the read process
         const truncateLimits: Record<string, number> = {
-            [CONFIG.headers.otherWallet]: 300,
-            [CONFIG.headers.otherParticipation]: 300,
-            [CONFIG.headers.experience]: 300
+            [CONFIG.headers.otherWallet]: 450,
+            [CONFIG.headers.otherParticipation]: 450,
+            [CONFIG.headers.experience]: 450
         };
 
         // Search for the header row by checking for mandatory column names.
