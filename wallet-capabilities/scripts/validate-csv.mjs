@@ -84,7 +84,10 @@ try {
         hasResponse: getIndex(CONFIG.headers.hasResponse),
         typology: getIndex(CONFIG.headers.typology),
         protocols: getIndex(CONFIG.headers.protocols),
-        encodings: getIndex(CONFIG.headers.encodings)
+        encodings: getIndex(CONFIG.headers.encodings),
+        otherWallet: getIndex(CONFIG.headers.otherWallet),
+        otherParticipation: getIndex(CONFIG.headers.otherParticipation),
+        experience: getIndex(CONFIG.headers.experience)
     };
 
     let entryCount = 0;
@@ -138,6 +141,20 @@ try {
         checkVocabulary(indices.typology, CONFIG.headers.typology, CONFIG.vocabularies.typologies);
         checkVocabulary(indices.protocols, CONFIG.headers.protocols, CONFIG.vocabularies.protocols);
         checkVocabulary(indices.encodings, CONFIG.headers.encodings, CONFIG.vocabularies.encodings);
+
+        // Check 5: Max length for specific descriptive fields
+        const checkMaxLength = (fieldIndex, fieldName, maxLength) => {
+            if (fieldIndex !== -1) {
+                const rawValue = row[fieldIndex];
+                if (rawValue && rawValue.length > maxLength) {
+                    errors.push(`Row ${rowNum}: '${fieldName}' exceeds maximum length of ${maxLength} characters (current length: ${rawValue.length}).`);
+                }
+            }
+        };
+
+        checkMaxLength(indices.otherWallet, CONFIG.headers.otherWallet, 500);
+        checkMaxLength(indices.otherParticipation, CONFIG.headers.otherParticipation, 500);
+        checkMaxLength(indices.experience, CONFIG.headers.experience, 500);
 
         entryCount++;
     }
