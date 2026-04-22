@@ -33,7 +33,7 @@ Additionally, Procivis also offers a wallet for individuals – the Procivis One
 
 Relevant information is currently available only within our internal documentation";"NFC;QR Code;";" ISO/IEC 18013-5:2021 ; W3C Verifiable Credentials 1.1;";"JSON;";"JWT (including SD-JWT) ;JSON-LD;";;;Not a LSP for Wallets, but participating in DOME (101084071) (DIGITAL-2021-CLOUD-AI-01) . Implementing https://alastria.github.io/did-method-elsi/ in https://github.com/DOME-Marketplace/iam-components and https://knowledgebase.dome-marketplace.eu/books/company-onboarding-process-guide-for-cloud-service-providers-csp/chapter/onboarding-guidelines
 29;EJIE;EJIE (Basque Goverment) ;TRUE;No;;;;;;;;;;
-29.1;EIJE Izenpe;;FALSE;;;;;;;;;;;
+29.1;EIJE Izenpe;EIJE Izenpe;FALSE;;;;;;;;;;;
 38;IDnow SAS;IDnow SAS;FALSE;;;;;;;;;;;
 51;IZERTIS;IZERTIS;TRUE;Yes;"Wallets that can be used by natural persons ;Wallets that can be used by legal persons ;";"Mobile wallet ;Server wallet that can be installed on premise ;Server wallet that can be provided as a service;";"You can find more information here: https://identfy.es/ https://github.com/izertis/identfy
  
