@@ -44,7 +44,7 @@ To update the data, you will need to update this CSV file, ensuring that it adhe
 
 ### Data Validation
 
-To ensure the integrity of the data source, a validation script is included. This script checks that the `wallet capabilities.csv` file can be read and parsed correctly before any deployment.
+To ensure the integrity of the data source, a validation script is included. This script is automatically executed via a GitHub Action on Pull Requests and before any deployment to the `main` branch.
 
 The script is located at `scripts/validate-csv.mjs` and can be run manually:
 
@@ -52,7 +52,14 @@ The script is located at `scripts/validate-csv.mjs` and can be run manually:
 npm run validate
 ```
 
-This validation is also automatically executed as part of the deployment process.
+The validation script performs the following structural and content checks:
+- **Mandatory Fields:** Ensures that `nr in Portal`, `Short name`, and `Organizations (Legal Name)` are present for every entry.
+- **ID Format:** Verifies that `nr in Portal` contains only numbers and periods.
+- **Recognized Vocabularies:** Validates that `Kind of wallet`, `Standards supported`, and `Encoding formats` only contain allowed values matching the project's configuration (`src/config.ts`).
+- **Boolean Values:** Checks that `Has response ?` is strictly "TRUE", "FALSE", or empty.
+- **Maximum Length Constraints:** Ensures that the `Other input (wallet)`, `Other input (participation)`, and `Previous LSP experience` fields do not exceed 500 characters.
+
+This validation guarantees that malformed data will not break the UI or be inadvertently deployed.
 
 ### Building for Production
 
