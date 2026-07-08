@@ -10,6 +10,16 @@ The UI is available via GitHub Pages at: https://webuild-consortium.github.io/wp
 
 The data presented in this UI are based on self-declarations by each wallet provider and may be outdated. Please verify information directly with wallet providers for the most current details.
 
+## Updating the data (wallet providers)
+
+Are you a wallet provider who wants to add or update your entry? See **[UPDATING.md](UPDATING.md)**
+for step-by-step instructions — either edit the CSV yourself, or fill in a template
+([Excel](templates/wallet_capabilities_template_UPDATES.xlsx) / [CSV](templates/wallet_capabilities_template_UPDATES.csv))
+and send it to us.
+
+> **Maintainers:** to apply a submitted template, run `npm run import-update -- <file.csv>` (add
+> `--dry-run` to preview the diff first, or `--pr` to open a pull request instead of pushing to `main`).
+
 ## Development Setup
 
 This project is a single-page application built using **React**, **TypeScript**, and **Vite**.
@@ -39,7 +49,7 @@ This project is a single-page application built using **React**, **TypeScript**,
 
 ### Data
 The application fetches data from the `wallet-capabilities/public/wallet capabilities.csv` [file](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/public/wallet%20capabilities.csv).
-To update the data, you will need to update this CSV file, ensuring that it adheres to the expected format and structure.
+To update the data, you will need to update this CSV file, ensuring that it adheres to the expected format and structure. See **[UPDATING.md](UPDATING.md)** for a step-by-step guide (including a no-GitHub option for wallet providers).
 
 
 ### Data Validation

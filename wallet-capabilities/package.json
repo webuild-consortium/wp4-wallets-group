@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "validate": "node scripts/validate-csv.mjs",
+    "import-update": "node scripts/import-update.mjs",
     "predeploy": "npm run validate && npm run build",
     "deploy": "gh-pages -d dist"
   },
