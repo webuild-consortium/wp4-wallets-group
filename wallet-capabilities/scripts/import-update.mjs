@@ -1,16 +1,17 @@
 // Import a wallet-provider update from a submitted CSV into the live dataset.
 //
 // Pipeline: parse & validate the submitted file  ->  show a highlighted field-level diff
-// against the current entry  ->  ask for confirmation  ->  write, commit, and push to main
-// (which triggers the GitHub Pages redeploy).
+// against the current entry  ->  ask for confirmation  ->  write, commit, and open a pull
+// request (default; main requires PRs) or push straight to main.
 //
 // Usage (run from the wallet-capabilities/ directory):
-//   npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--pr | --no-push]
+//   npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--push-main | --no-push]
 //
-//   --dry-run   validate and show the diff only; never writes, commits, or pushes
-//   --yes, -y   skip the interactive confirmation (needed when run non-interactively, e.g. from Claude)
-//   --pr        commit on a new branch and open a pull request via gh (instead of pushing to main)
-//   --no-push   apply + commit locally but do not push to origin/main
+//   --dry-run     validate and show the diff only; never writes, commits, or pushes
+//   --yes, -y     skip the interactive confirmation (needed when run non-interactively, e.g. from Claude)
+//   (default)     commit on a new branch and open a pull request via gh — main requires PRs
+//   --push-main   commit + push straight to origin/main (admins only; bypasses the PR rule)
+//   --no-push     apply + commit locally but do not push
 //
 // CSV only. If you have an .xlsx, open it in Excel and Save As -> CSV first.
 // Merge semantics: a blank cell in the submission keeps the current value; only filled-in
@@ -70,21 +71,23 @@ const submittedPath = positional[0];
 const dryRun = flags.has('--dry-run');
 const autoYes = flags.has('--yes') || flags.has('-y');
 const noPush = flags.has('--no-push');
-const openPr = flags.has('--pr');
+const pushMain = flags.has('--push-main');
+const openPr = !noPush && !pushMain; // default: open a pull request (main is protected)
 
 if (flags.has('--help') || flags.has('-h') || !submittedPath) {
     console.log(`Import a wallet-provider update from a submitted CSV.
 
-Usage: npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--pr | --no-push]
+Usage: npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--push-main | --no-push]
 
-  --dry-run   validate and show the diff only (no write/commit/push)
-  --yes, -y   skip the confirmation prompt
-  --pr        commit on a new branch and open a pull request (uses gh) instead of pushing to main
-  --no-push   commit locally but do not push`);
+  --dry-run     validate and show the diff only (no write/commit/push)
+  --yes, -y     skip the confirmation prompt
+  (default)     commit on a new branch and open a pull request via gh (main requires PRs)
+  --push-main   commit + push straight to main (admins only; bypasses the PR rule)
+  --no-push     commit locally but do not push`);
     process.exit(submittedPath ? 0 : 1);
 }
-if (openPr && noPush) fail('Use either --pr or --no-push, not both.');
-if (openPr && !GH) fail('--pr needs the GitHub CLI (gh), which was not found on PATH or in the usual install folders.\n  Open a new terminal (so PATH picks up a fresh install), or drop --pr to push to main directly.');
+if (pushMain && noPush) fail('Use either --push-main or --no-push, not both.');
+if (openPr && !GH) fail('Opening a pull request needs the GitHub CLI (gh), which was not found on PATH or in the usual install folders.\n  Open a new terminal (so PATH picks up the install), install gh, or use --push-main (admins) / --no-push.');
 if (/\.xlsx?$/i.test(submittedPath)) {
     fail(`This tool reads CSV only. Open "${path.basename(submittedPath)}" in Excel and Save As → CSV, then re-run.\n  ` +
         yellow('Heads up:') + ` Excel can silently turn a portal number like 29.1 into a date (29-Jan). Check the 'nr in Portal' cell before saving.`);
@@ -277,7 +280,7 @@ if (dryRun) {
 async function confirm() {
     if (autoYes) return true;
     if (!process.stdin.isTTY) {
-        console.log(yellow('\nNon-interactive environment detected. Re-run with ') + bold('--yes') + yellow(' to apply and push.'));
+        console.log(yellow('\nNon-interactive environment detected. Re-run with ') + bold('--yes') + yellow(' to apply.'));
         return false;
     }
     const action = openPr ? 'commit on a new branch and open a pull request'
@@ -323,19 +326,19 @@ try {
         console.log(green('✔ Opened a pull request:'));
         console.log('  ' + prUrl);
         console.log(dim(`(Back on "${baseBranch}". Merge the PR — validation runs, then the site redeploys.)`));
-    } else {
-        if (baseBranch !== 'main' && !noPush) {
-            fail(`You are on branch "${baseBranch}", not "main". Switch to main, use --no-push, or use --pr.`);
-        }
+    } else if (noPush) {
         git(['add', csvRel]);
         git(['commit', '-m', commitMsg]);
         console.log(green(`✔ Committed on ${baseBranch}.`));
-        if (noPush) {
-            console.log(yellow('--no-push: not pushing. Push when ready: git push origin main'));
-        } else {
-            git(['push', 'origin', 'main']);
-            console.log(green('✔ Pushed to origin/main. The deploy workflow will republish the site shortly.'));
-        }
+        console.log(yellow('--no-push: not pushing. Push when ready: git push origin main'));
+    } else {
+        // --push-main: bypasses the branch-protection PR rule (admins only)
+        if (baseBranch !== 'main') fail(`--push-main expects branch "main" but you're on "${baseBranch}". Switch to main first.`);
+        git(['add', csvRel]);
+        git(['commit', '-m', commitMsg]);
+        console.log(green(`✔ Committed on ${baseBranch}.`));
+        git(['push', 'origin', 'main']);
+        console.log(green('✔ Pushed to origin/main. The deploy workflow will republish the site shortly.'));
     }
 } catch (e) {
     fail(`git/gh step failed: ${e.stderr || e.message}\nThe CSV was written locally; review with 'git status' / 'git diff' and finish manually.`);

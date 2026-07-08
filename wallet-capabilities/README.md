@@ -18,7 +18,8 @@ for step-by-step instructions — either edit the CSV yourself, or fill in a tem
 and send it to us.
 
 > **Maintainers:** to apply a submitted template, run `npm run import-update -- <file.csv>` (add
-> `--dry-run` to preview the diff first, or `--pr` to open a pull request instead of pushing to `main`).
+> `--dry-run` to preview first). It opens a pull request by default (`main` requires PRs); add
+> `--push-main` to push straight to `main`.
 
 ## Development Setup
 
