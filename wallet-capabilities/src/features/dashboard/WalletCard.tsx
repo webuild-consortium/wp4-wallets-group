@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Wallet } from '../../types/Wallet';
-import { CONFIG } from '../../config';
 import { TypologyBadge } from '../../ui/TypologyBadge';
 import { StandardChip } from '../../ui/StandardChip';
 import { ProviderIdentity } from '../../ui/ProviderIdentity';
@@ -63,8 +62,11 @@ export const WalletCard: React.FC<CardProps> = ({ entry, index, total, onNavigat
                     <div className="space-y-4">
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider border-b pb-2">Wallet Typology</h3>
                         <ul className="space-y-3">
-                            <TypologyBadge typology={CONFIG.vocabularies.typologies[0]} variant="full" />
-                            <TypologyBadge typology={CONFIG.vocabularies.typologies[1]} variant="full" />
+                            {entry.typologies.length ? (
+                                entry.typologies.map(t => <TypologyBadge key={t} typology={t} variant="full" />)
+                            ) : (
+                                <li className="text-sm text-gray-400 italic">None</li>
+                            )}
                         </ul>
                     </div>
                     <div className="space-y-4">
