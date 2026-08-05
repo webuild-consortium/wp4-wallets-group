@@ -1,0 +1,16 @@
+# Force LF line endings for text files in the working tree.
+# Without this, Git for Windows checks text files out as CRLF, which inflates
+# multi-line CSV cell lengths (one extra \r per embedded newline) and makes the
+# 500-char validator in scripts/wallet-schema.mjs (and import-update.mjs) fail
+# locally on Windows even though the data is valid. CI runs on Linux (LF) and was
+# unaffected — this keeps local and CI behaviour consistent.
+* text=auto eol=lf
+
+# Binary files: never apply line-ending conversion.
+*.xlsx binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
