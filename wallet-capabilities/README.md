@@ -76,7 +76,7 @@ npm run import-update -- <their-file.csv|.xlsx> --dry-run   # preview the valida
 npm run import-update -- <their-file.csv|.xlsx>             # apply — opens a pull request (main requires PRs)
 ```
 
-It accepts `.csv` **or** `.xlsx` directly, validates the submission against the same rules as CI, shows a field-level diff, and opens a pull request by default. Add `--push-main` to push straight to `main` (admins only) or `--no-push` to commit locally. Blank cells keep the current value (merge, not overwrite).
+It accepts `.csv` directly; to import an `.xlsx`, install SheetJS locally once — `npm i --no-save xlsx` (kept out of the repo's dependencies on purpose, so the lock/deploy stay untouched). It validates the submission against the same rules as CI, shows a field-level diff, and opens a pull request by default. Add `--push-main` to push straight to `main` (admins only) or `--no-push` to commit locally. Blank cells keep the current value (merge, not overwrite).
 
 ### Building for Production
 

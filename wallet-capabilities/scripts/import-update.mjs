@@ -13,9 +13,10 @@
 //   --push-main   commit + push straight to origin/main (admins only; bypasses the PR rule)
 //   --no-push     apply + commit locally but do not push
 //
-// Accepts .csv or .xlsx (an .xlsx is auto-converted to CSV; the sheet used is the one whose
-// header row carries the columns). Merge semantics: a blank cell in the submission keeps the
-// current value; only filled-in cells change. To clear a field, say so explicitly.
+// Accepts .csv or .xlsx. Reading .xlsx needs SheetJS installed locally ("npm i --no-save xlsx";
+// intentionally NOT vendored, to keep the repo's package-lock untouched); it's auto-converted to
+// CSV. Merge semantics: a blank cell in the submission keeps the current value; only filled-in
+// cells change. To clear a field, say so explicitly.
 
 import fs from 'fs';
 import path from 'path';
@@ -118,7 +119,7 @@ const parseLine = (line, delimiter) => (Papa.parse(line, { delimiter, header: fa
 async function xlsxToCsv(file) {
     let XLSX;
     try { XLSX = await import('xlsx'); }
-    catch { fail(`Reading .xlsx needs the "xlsx" dev-dependency. Run "npm install", or export the file to CSV and pass that instead.`); }
+    catch { fail(`Reading .xlsx needs SheetJS, which isn't vendored in this repo. Install it locally once:\n  npm i --no-save xlsx\nthen re-run — or export the file to CSV and pass that instead.`); }
     const wb = XLSX.read(fs.readFileSync(file), { type: 'buffer' }); // read bytes ourselves (ESM build doesn't bind fs)
     const pick = wb.SheetNames.find(n => {
         const first = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, blankrows: false })[0] || [];
