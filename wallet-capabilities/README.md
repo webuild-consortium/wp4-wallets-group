@@ -15,11 +15,7 @@ The data presented in this UI are based on self-declarations by each wallet prov
 Are you a wallet provider who wants to add or update your entry? See **[UPDATING.md](UPDATING.md)**
 for step-by-step instructions — either edit the CSV yourself, or fill in a template
 ([Excel](templates/wallet_capabilities_template_UPDATES.xlsx) / [CSV](templates/wallet_capabilities_template_UPDATES.csv))
-and send it to us.
-
-> **Maintainers:** to apply a submitted template, run `npm run import-update -- <file.csv>` (add
-> `--dry-run` to preview first). It opens a pull request by default (`main` requires PRs); add
-> `--push-main` to push straight to `main`.
+and send it to us. (Maintainers applying a submission: see [Applying a submitted template](#applying-a-submitted-template) below.)
 
 ## Development Setup
 
@@ -49,8 +45,7 @@ This project is a single-page application built using **React**, **TypeScript**,
 > **Note:** The application expects the [`wallet capabilities.csv`](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/public/wallet%20capabilities.csv) file to be in the `public` directory.
 
 ### Data
-The application fetches data from the `wallet-capabilities/public/wallet capabilities.csv` [file](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/public/wallet%20capabilities.csv).
-To update the data, you will need to update this CSV file, ensuring that it adheres to the expected format and structure. See **[UPDATING.md](UPDATING.md)** for a step-by-step guide (including a no-GitHub option for wallet providers).
+The application fetches data from the `wallet-capabilities/public/wallet capabilities.csv` [file](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/public/wallet%20capabilities.csv). How to change it is covered in **[UPDATING.md](UPDATING.md)** (for wallet providers) and under [Applying a submitted template](#applying-a-submitted-template) (for maintainers).
 
 
 ### Data Validation
@@ -71,6 +66,17 @@ The validation script performs the following structural and content checks:
 - **Maximum Length Constraints:** Ensures that the `Other input (wallet)`, `Other input (participation)`, and `Previous LSP experience` fields do not exceed 500 characters.
 
 This validation guarantees that malformed data will not break the UI or be inadvertently deployed.
+
+### Applying a submitted template
+
+When a wallet provider sends a filled template (Option 2 in [UPDATING.md](UPDATING.md)), import it with:
+
+```bash
+npm run import-update -- <their-file.csv|.xlsx> --dry-run   # preview the validated, field-level diff
+npm run import-update -- <their-file.csv|.xlsx>             # apply — opens a pull request (main requires PRs)
+```
+
+It accepts `.csv` **or** `.xlsx` directly, validates the submission against the same rules as CI, shows a field-level diff, and opens a pull request by default. Add `--push-main` to push straight to `main` (admins only) or `--no-push` to commit locally. Blank cells keep the current value (merge, not overwrite).
 
 ### Building for Production
 
