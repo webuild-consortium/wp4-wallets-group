@@ -5,7 +5,7 @@
 // request (default; main requires PRs) or push straight to main.
 //
 // Usage (run from the wallet-capabilities/ directory):
-//   npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--push-main | --no-push]
+//   npm run import-update -- <submitted.csv|.xlsx> [--dry-run] [--yes] [--push-main | --no-push]
 //
 //   --dry-run     validate and show the diff only; never writes, commits, or pushes
 //   --yes, -y     skip the interactive confirmation (needed when run non-interactively, e.g. from Claude)
@@ -13,9 +13,10 @@
 //   --push-main   commit + push straight to origin/main (admins only; bypasses the PR rule)
 //   --no-push     apply + commit locally but do not push
 //
-// CSV only. If you have an .xlsx, open it in Excel and Save As -> CSV first.
-// Merge semantics: a blank cell in the submission keeps the current value; only filled-in
-// cells change. To clear a field, say so explicitly (it cannot be done with a blank cell).
+// Accepts .csv or .xlsx. Reading .xlsx needs SheetJS installed locally ("npm i --no-save xlsx";
+// intentionally NOT vendored, to keep the repo's package-lock untouched); it's auto-converted to
+// CSV. Merge semantics: a blank cell in the submission keeps the current value; only filled-in
+// cells change. To clear a field, say so explicitly.
 
 import fs from 'fs';
 import path from 'path';
@@ -77,7 +78,7 @@ const openPr = !noPush && !pushMain; // default: open a pull request (main is pr
 if (flags.has('--help') || flags.has('-h') || !submittedPath) {
     console.log(`Import a wallet-provider update from a submitted CSV.
 
-Usage: npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--push-main | --no-push]
+Usage: npm run import-update -- <submitted.csv|.xlsx> [--dry-run] [--yes] [--push-main | --no-push]
 
   --dry-run     validate and show the diff only (no write/commit/push)
   --yes, -y     skip the confirmation prompt
@@ -88,10 +89,6 @@ Usage: npm run import-update -- <submitted.csv> [--dry-run] [--yes] [--push-main
 }
 if (pushMain && noPush) fail('Use either --push-main or --no-push, not both.');
 if (openPr && !GH) fail('Opening a pull request needs the GitHub CLI (gh), which was not found on PATH or in the usual install folders.\n  Open a new terminal (so PATH picks up the install), install gh, or use --push-main (admins) / --no-push.');
-if (/\.xlsx?$/i.test(submittedPath)) {
-    fail(`This tool reads CSV only. Open "${path.basename(submittedPath)}" in Excel and Save As → CSV, then re-run.\n  ` +
-        yellow('Heads up:') + ` Excel can silently turn a portal number like 29.1 into a date (29-Jan). Check the 'nr in Portal' cell before saving.`);
-}
 if (!fs.existsSync(submittedPath)) fail(`File not found: ${submittedPath}`);
 if (!fs.existsSync(CSV_PATH)) fail(`Current dataset not found at ${CSV_PATH}. Run this from the wallet-capabilities/ directory.`);
 
@@ -118,8 +115,25 @@ function splitRecords(text) {
 
 const parseLine = (line, delimiter) => (Papa.parse(line, { delimiter, header: false }).data[0] || []);
 
-// ---- read & parse the submitted file (accept ';' or ',' as the column delimiter) ----
-const submittedRaw = fs.readFileSync(submittedPath, 'utf8');
+// Convert the sheet whose header carries our columns into semicolon-CSV text.
+async function xlsxToCsv(file) {
+    let XLSX;
+    try { XLSX = await import('xlsx'); }
+    catch { fail(`Reading .xlsx needs SheetJS, which isn't vendored in this repo. Install it locally once:\n  npm i --no-save xlsx\nthen re-run — or export the file to CSV and pass that instead.`); }
+    const wb = XLSX.read(fs.readFileSync(file), { type: 'buffer' }); // read bytes ourselves (ESM build doesn't bind fs)
+    const pick = wb.SheetNames.find(n => {
+        const first = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, blankrows: false })[0] || [];
+        const hdr = first.map(v => String(v ?? '').trim());
+        return hdr.includes(CONFIG.headers.id) || hdr.includes(CONFIG.headers.shortName);
+    }) || wb.SheetNames[0];
+    console.log(dim(`(converted sheet "${pick}" from ${path.basename(file)} to CSV)`));
+    return XLSX.utils.sheet_to_csv(wb.Sheets[pick], { FS: CONFIG.delimiter, blankrows: false });
+}
+
+// ---- read the submitted file (.xlsx auto-converted to CSV), accept ';' or ',' delimiter ----
+const submittedRaw = /\.xlsx?$/i.test(submittedPath)
+    ? await xlsxToCsv(submittedPath)
+    : fs.readFileSync(submittedPath, 'utf8');
 let submittedDelimiter = null;
 let submittedRows = null;
 for (const delimiter of [CONFIG.delimiter, ',']) {

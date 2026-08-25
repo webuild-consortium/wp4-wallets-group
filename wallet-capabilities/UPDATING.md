@@ -68,9 +68,9 @@ group-leading team reviews and merges, and the site redeploys.
 
 ## Option 2 — Fill a template and send it to us
 
-1. Download a template — use whichever you prefer (**we prefer CSV**):
-   - CSV: [`templates/wallet_capabilities_template_UPDATES.csv`](templates/wallet_capabilities_template_UPDATES.csv)
+1. Download a template (either format works — we import both directly):
    - Excel: [`templates/wallet_capabilities_template_UPDATES.xlsx`](templates/wallet_capabilities_template_UPDATES.xlsx)
+   - CSV: [`templates/wallet_capabilities_template_UPDATES.csv`](templates/wallet_capabilities_template_UPDATES.csv)
 2. Fill in **only the fields you want to change** (see the [column rules](#column-rules)). You don't
    have to repeat unchanged values — when we import, a blank cell keeps your current value.
 3. Email the file (`.csv` or `.xlsx`) to the **group-leading team**, cc'ing
@@ -87,11 +87,16 @@ come back to you.
 The file has **15 columns**, in this order. Multiple values in one cell are separated by a
 semicolon `;`.
 
+> **Your identity fields come from your accession form.** `nr in Portal`, `Short name`, and
+> `Organizations (Legal Name)` are all recorded in your WeBuild **accession form** — copy them
+> exactly from there. `nr in Portal` is your assigned portal **number** (e.g. `29` or `29.1`),
+> not `1` or a guess.
+
 | Column | Rule |
 |---|---|
-| `nr in Portal` | **Mandatory. Numbers and periods only** (e.g. `29` or `29.1`) — your WeBuild portal number from the Grant Agreement. Please verify it against the GA. |
-| `Short name` | Mandatory. |
-| `Organizations (Legal Name)` | Mandatory. |
+| `nr in Portal` | **Mandatory. Numbers and periods only** (e.g. `29` or `29.1`) — your assigned portal number from your **accession form**. If unsure, leave it blank and we'll confirm it. |
+| `Short name` | Mandatory — as recorded in your accession form. |
+| `Organizations (Legal Name)` | Mandatory — the legal entity name from your accession form. |
 | `Has response ?` | `TRUE`, `FALSE`, or empty. Set `TRUE` when you provide data. |
 | `Provide wallets for UCs?` | `Yes` / `No` — whether you intend to provide your wallet to WeBuild use cases. |
 | `Kind of wallet` | **Controlled (enforced)** — pick only from the [allowed values](#allowed-values). |
@@ -139,10 +144,11 @@ If you edit the CSV directly (Option 1) or hand-edit the CSV template, keep to t
 
 ## Known gotcha — Excel and the portal number
 
-If you open the CSV template in Excel and re-save it as CSV, values that look numeric (like a portal
-number `29.1`) can be **silently reformatted as dates** (e.g. `29-Jan`) by Excel's autoformat, which
-then fails the validation check. If you send a CSV back, please double-check that no cell —
-especially `nr in Portal` — has been reformatted this way. (Sending the `.xlsx` avoids this.)
+**Sending the `.xlsx` is safest — we import it directly.** This gotcha only applies if you export to
+CSV yourself: opening the CSV template in Excel and re-saving as CSV can **silently reformat** values
+that look numeric (like a portal number `29.1`) into dates (e.g. `29-Jan`), which then fails
+validation. If you do send a CSV, double-check that no cell — especially `nr in Portal` — was
+reformatted this way.
 
 ## Questions
 
