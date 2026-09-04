@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      # The published site is built entirely from wallet-capabilities/.
+      # Changes elsewhere in the repo (root README, guidance/, feedback/)
+      # cannot affect the build, so they must not trigger a republish.
+      - 'wallet-capabilities/**'
+      - '.github/workflows/deploy.yml'
+  # Manual redeploy, e.g. to republish after a change this filter skips.
+  workflow_dispatch:
 
 permissions:
   contents: write
