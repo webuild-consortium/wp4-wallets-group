@@ -3,7 +3,7 @@
 **Joining the Trusted List of Wallet Providers, and how that relates to the Interoperability Test
 Bed and the Wallet Capability Viewer. A practical guide for Wallet Providers.**
 
-Maintained by the Wallet Providers Group (T4.7) · Draft v0.5 · 4 September 2026
+Maintained by the Wallet Providers Group (T4.7) · Draft v0.6 · 5 September 2026
 
 ---
 
@@ -14,8 +14,9 @@ Maintained by the Wallet Providers Group (T4.7) · Draft v0.5 · 4 September 202
 > group**. This guide sequences their published material for wallet providers and links to it. Where
 > this guide and their documents differ, **their documents govern**.
 >
-> Ten points are not answered in the published material. They are marked **`[OI-nn]`** in the text
-> and collected in [Annex A](#annex-a--open-items-register), addressed to the group that owns each.
+> Eleven points are recorded. They are marked **`[OI-nn]`** in the text and collected in
+> [Annex A](#annex-a--open-items-register), addressed to the group that owns each. **Two were
+> answered by the Trust Infrastructure group on 4 September 2026 and are marked closed there.**
 > Until an item is closed, this guide deliberately says nothing about it rather than describing a
 > step that has not been confirmed.
 >
@@ -119,8 +120,15 @@ The Trusted List and certificate profiles are ETSI TS 119 602 and ETSI EN 319 41
 [[19]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/README.md)
 [[20]](https://www.etsi.org/deliver/etsi_en/319400_319499/31941206/01.00.00_20/en_31941206v010000c.pdf).
 
-> **`[OI-01]` CSR profile.** No worked example, key-algorithm requirement or sample command is
-> published. See [Annex A](#annex-a--open-items-register).
+> **CSR profile.** ETSI EN 319 412-6 §5, referenced from UC-03 via Task 3, is the **issued-certificate
+> profile, not a CSR template**. Do not copy the published certificate example as a template for your
+> request: it is an issued certificate and it uses RSA, and it is being corrected
+> ([wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131)).
+>
+> **If you upload your own CSR for the pilot, use ECDSA P-256 (`prime256v1`), with a subject built
+> from the UC-03 legal-entity data.** A P-256 example is to be added to Task 3 under the same issue.
+> Trust Infrastructure group, 4 September 2026. **`[OI-01]`** stays open until that example is
+> published.
 
 ## Step 3 — Identify the correct Trusted List
 
@@ -132,6 +140,11 @@ Onboard to the list matching the role you play in your pilot use cases. As a wal
 
 Onboarding is requested through the IDunion console
 [[6]](https://console.dev.idunion.info/my-trusted-lists), with the operator's user guide at [[7]](https://docs.dev.idunion.info/docs/user-guide/#onboarding-to-a-trusted-list).
+Both are confirmed by the Trust Infrastructure group as the entry point for the pilot (4 September
+2026).
+
+> **UC-03 still says the request starts "via Open Social of the WeBuild Consortium". That line is
+> stale** and the Trust Infrastructure group will replace it with the console URL. Use the console.
 
 **How to confirm you have the right list.** The WE BUILD List of Trusted Lists (LoTL) is the trust
 anchor for the pilot and is published in JSON [[8]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json)
@@ -169,10 +182,21 @@ instead upload a CSR created with keys you control locally; client-side HSMs can
 request; for key management entirely on your own infrastructure the console operator asks you to
 contact <info@idunion.eu>.
 
-> **Deliberately not documented here.** How you authenticate to the console `[OI-02]`, the entry
-> point for the route without an invitation `[OI-03]`, and whether the console flow applies
-> unchanged to a wallet provider `[OI-04]`. The published material does not establish these and this
-> guide does not guess. See [Annex A](#annex-a--open-items-register).
+> **What is confirmed, and what is not.** Trust Infrastructure group, 4 September 2026.
+>
+> - **The submission channel is the same console** for a wallet provider as for any other onboardee,
+>   despite the operator's user guide naming only "Issuers of Electronic Attestations of Attributes".
+> - **The data you prepare is the UC-03 wallet-provider set** (Step 2), not the operator's generic
+>   EAA-issuer set.
+> - **Whether the on-screen form actually collects the UC-03 wallet-solution fields is not
+>   published.** Prepare the UC-03 data; do not assume the form asks for all of it. `[OI-04]`
+> - **How you authenticate `[OI-02]`, and whether an account must exist before you can find a Trusted
+>   List and start a request `[OI-03]`, are for the console operator to confirm.** The Trust
+>   Infrastructure group's reading is that a wallet for natural persons is not part of the flow, and
+>   that "register for an account" means creating a console account. **That is a reading, not a
+>   confirmation.**
+>
+> See [Annex A](#annex-a--open-items-register).
 
 ## Step 5 — Review and approval
 
@@ -191,9 +215,16 @@ and your entry is added to the Trusted List of Wallet Providers.
 In the pilot phase the Ecosystem Authority and Trusted List Provider is the WP4 Trust Infrastructure
 group, acting through the Trust Infrastructure Responsible Group [[4]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/terms-and-entities.md).
 
-> **`[OI-05]` Approver and support channel.** No individual or channel is designated for the Wallet
-> Providers Trusted List. **`[OI-06]` Expected turnaround.** Not published. See
-> [Annex A](#annex-a--open-items-register).
+> **Who reviews, and who decides.** The **Trust Infrastructure Responsible Group** reviews. The
+> **WP4 Trust Infrastructure lead and co-lead** take the decision, acting as Ecosystem Authority.
+>
+> **Where to ask.** **IDunion is designated for the Trusted List of Wallet Providers**: it hosts the
+> list and operates the console. For console questions, or to chase a pending request, write to
+> <info@idunion.eu>. Trust Infrastructure group, 4 September 2026.
+>
+> **`[OI-06]` Turnaround.** There is no service level for the first decision, and the Trust
+> Infrastructure group will not publish an estimate until the console operator agrees one. Note that
+> "without undue delay" applies to **updates after you are listed**, not to the initial decision.
 
 ## Step 6 — Keep your entry current
 
@@ -204,6 +235,7 @@ group, acting through the Trust Infrastructure Responsible Group [[4]](https://g
   conditions for listing are no longer met, or at your own request. Certificates issued for a
   de-listed wallet solution are revoked, and revocation status is published in line with the Trusted
   List and certificate policy.
+- Before you validate chains against the pilot, check that the pointer certificate is current.
 - **Audit what is actually published.** The EUDI Trusted Lists Inspector [[16]](https://trust-inspector.credimi.io/)
   audits the WE BUILD LoTL and the referenced Trusted Lists — signatures, schemas, certificate
   chains, list pointers — and produces evidence reports. A debug and testing tool for LoTL, TLs and
@@ -261,21 +293,23 @@ channel to be listed. The report is checked before the listing is updated
 
 # Annex A — Open items register
 
-Every point below is unanswered in the published material as of 4 September 2026. Each is addressed
-to the group that owns it. Please reply by item reference.
+Each point is addressed to the group that owns it. Please reply by item reference. Items marked
+**closed** were answered by the Trust Infrastructure group on 4 September 2026 and are kept here for
+the record.
 
 | Ref | Question | Owner | Blocks |
 |---|---|---|---|
-| **OI-01** | UC-03 requires an X.509 CSR and points to Task 3 and ETSI EN 319 412-6 §5, but no worked example, key-algorithm requirement or sample command is published. Which key management option is recommended for the pilot, and can a sample CSR be published? | Trust Infrastructure group / console operator | Step 2 |
-| **OI-02** | The operator's user guide says "log in with your EU Business Wallet or register for an account", but only for the invitation route and for creating a Trusted List. Can a wallet for natural persons be used, or is a business wallet required? What does registering for an account involve? | Console operator, via Trust Infrastructure group | Step 4 |
-| **OI-03** | In the operator's user guide, the first step of the route without an invitation reads "Go to (URL)" — an unfilled placeholder. The console link in Step 3 comes from the WE BUILD trust group document, not from the operator's guide. Opening the console presents login and register options first, which neither document mentions. What is the correct entry point, and must an account exist before a Trusted List can be searched and a request started? | Console operator, via Trust Infrastructure group | Step 4 |
-| **OI-04** | The operator's user guide describes its onboardee role as "Issuers of Electronic Attestations of Attributes" and does not mention Wallet Providers. Is the console flow identical for a wallet provider submitting wallet-solution data under UC-03, or are there additional or different fields? | Trust Infrastructure group | Step 4 |
-| **OI-05** | `terms-and-entities.md` §4.1 lists the Trust Infrastructure Responsible Group, but the Designation column reads "TBD" for three of five entities and none is designated for the Wallet Providers Trusted List. Who reviews and approves a wallet-provider application, and which support channel should a provider use for questions or to chase a pending request? | Trust Infrastructure group | Step 5 |
-| **OI-06** | No indicative time from submission to decision is published. What is a realistic turnaround? | Trust Infrastructure group | Step 5 |
-| **OI-07** | The trust anchor certificate in the wallet-provider LoTL entry [[10]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/lotl/tl_entries/wallet-provider/idunion.json) is self-signed (O = WEBUILD - WP 4 - Group 5 - Trust Registry Infrastructure) with validity 17 March to 16 April 2026. Is the published LoTL still carrying this value, and does it need rotation before providers validate chains against it? | Trust Infrastructure group | Step 6 |
+| **OI-01** | **Narrowed 4 Sep 2026.** Confirmed that EN 319 412-6 §5 is the issued-certificate profile, not a CSR template, and that the published example uses RSA in error; tracked as [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131). Interim guidance is ECDSA P-256 with a subject built from the UC-03 legal-entity data. **Remaining: publication of a P-256 CSR example, and ideally a short creation procedure of the kind Task 5 gives for WRPAC.** | Trust Infrastructure group / console operator | Step 2 |
+| **OI-02** | The operator's user guide says "log in with your EU Business Wallet or register for an account", but only for the invitation route and for creating a Trusted List. Can a wallet for natural persons be used, or is a business wallet required? What does registering for an account involve? **The Trust Infrastructure group notes this is outside its scope and reads it as: a natural-person wallet is not part of the flow, and registering creates a console account. Confirmation is the console operator's.** | Console operator | Step 4 |
+| **OI-03** | **Narrowed 4 Sep 2026.** The entry point is confirmed: <https://console.dev.idunion.info/my-trusted-lists>, with the operator's guide at the anchor cited in reference [7]. The "Go to (URL)" placeholder and the stale "via Open Social" line in UC-03 are to be corrected. **Remaining: must an account exist before a Trusted List can be searched and a request started?** | Console operator | Step 4 |
+| **OI-04** | **Narrowed 4 Sep 2026.** Confirmed that the submission channel is the same console and that the data contract for a wallet provider is UC-03, not the operator's generic EAA-issuer set. **Remaining: whether the on-screen form collects the UC-03 wallet-solution fields is not published, and until it is, this guide will not state that it does.** | Console operator | Step 4 |
+| **OI-05** | **Closed 4 Sep 2026.** The Trust Infrastructure Responsible Group reviews; the WP4 Trust Infrastructure lead and co-lead decide as Ecosystem Authority. Checked: consortium membership, and that the CSR is in the expected format. IDunion is designated for the Trusted List of Wallet Providers; the support address is <info@idunion.eu>. A dedicated channel alongside `#itb-support` has been suggested. | Trust Infrastructure group | Step 5 |
+| **OI-06** | No indicative time from submission to decision is published. What is a realistic turnaround? **The Trust Infrastructure group has decided not to publish an estimate until the console operator agrees one, so this stays open.** Note that "without undue delay" applies to updates after listing, not to the first decision. | Trust Infrastructure group / console operator | Step 5 |
+| **OI-07** | **Closed 4 Sep 2026, confirmed.** The LoTL's own signing certificate is valid to 19 March 2029 and the LoTL was re-signed on 3 September 2026. What is expired are the trusted list **pointer** certificates for all six IDunion lists (Wallet Providers, PID, PuB-EAA, WRPAC, WRPRC, QEAA), which lapsed on 16 April 2026; the Credimi, NXD Foundation and Raidiam pointers are in date. A consumer that only verifies the LoTL signature is unaffected; one that follows the Wallet Providers pointer and checks that certificate's validity will reject the list. The correction is with the console operator. | Trust Infrastructure group | Step 6 |
 | **OI-08** | The published ITB repository contains the Base Protocols test cases but no test cases, prerequisites or documentation for the "WE BUILD CTS – Trust Framework Integration" suite, and the ITB User Guide is v1.0 of November 2025 and predates it. Where are these documented, and can they be published alongside the Base Protocols? | Testing group | Part B.1 |
 | **OI-09** | Which ITB test cases require prior listing on the Trusted List of Wallet Providers? Does the Base Protocols suite have any such dependency? | Testing group | Part B.4 |
 | **OI-10** | Is trust framework conformance recorded separately on the Conformance Overview, or within the existing table? What evidence is expected for it? | Testing group | Part B.3 |
+| **OI-11** | The certificate that signs the Trusted List of Wallet Providers is also the issuer of the wallet-solution certificates inside it: the entity certificates' Authority Key Identifier equals that certificate's Subject Key Identifier, and its signature over them verifies. That certificate is `basicConstraints CA:FALSE` with `keyUsage` limited to digitalSignature, so a verifier performing RFC 5280 path validation rejects the chain (`openssl verify` errors 79 and 32). This holds for the renewed certificate valid to 29 April 2028, so it is independent of OI-07. Are the entity certificates intended to be used as direct trust anchors from the list, in which case no chain is built, or is the issuing certificate profile to be corrected? | Trust Infrastructure group / console operator | Step 6 |
 
 ---
 
@@ -338,3 +372,4 @@ data is self-declared and the viewer is not an official registry.
 | 0.3 | 2026-09-04 | Console login and entry-point instructions withdrawn and reopened after verification against the operator's user guide: the wallet login is stated only for the invitation route, nothing is published about a natural-person wallet, and the entry point for the other route is an unfilled "(URL)" placeholder. Applicability of the operator's flow to Wallet Providers reopened. |
 | 0.4 | 2026-09-04 | Restructured: numbering now applies to onboarding steps only, background moved to an unnumbered section. ITB separated into Part B as a downstream activity, with the Trusted List dependency stated as an open question for the Testing group. Open items consolidated into a referenced register (Annex A). |
 | 0.5 | 2026-09-04 | Title and purpose aligned with the actual content: the guide covers three registrations at three different depths, now stated explicitly. Out-of-scope list added. D4.4 reference resolved to its portal URL. |
+| 0.6 | 2026-09-05 | Answers from the Trust Infrastructure group of 4 September applied. OI-05 (approver and support channel) and OI-07 (trust anchor validity) closed. OI-01, OI-03 and OI-04 narrowed to their remaining question; OI-02 re-addressed to the console operator; OI-06 kept open with the reason recorded. Interim CSR guidance added to Step 2, the confirmed console entry point and the stale UC-03 reference to Step 3. OI-11 added on the issuing certificate profile. |

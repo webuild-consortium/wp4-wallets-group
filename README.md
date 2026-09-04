@@ -14,4 +14,4 @@ Currently, it hosts the following apps:
 
 1. [Wallet Provider onboarding in WE BUILD](guidance/trusted-list-onboarding/README.md) - Joining the WE BUILD Trusted List of Wallet Providers, and how that relates to the Interoperability Test Bed and the Wallet Capability Viewer.
 
-**Status:** draft under development. The onboarding process is defined and operated by the WP4 Trust Infrastructure group, and the test procedures by the WP4 Testing group. This guidance sequences and links their published material; it defines nothing. Ten open items await confirmation from those groups and are listed in the document's open items register.
+**Status:** draft under development. The onboarding process is defined and operated by the WP4 Trust Infrastructure group, and the test procedures by the WP4 Testing group. This guidance sequences and links their published material; it defines nothing. Eleven items are recorded in the document's open items register; two were closed by the Trust Infrastructure group on 4 September 2026, and the rest await confirmation from those groups.
