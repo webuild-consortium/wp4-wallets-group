@@ -15,9 +15,8 @@ Maintained by the Wallet Providers Group (T4.7) · Draft v0.7 · 7 September 202
 > this guide and their documents differ, **their documents govern**.
 >
 > Points their published material does not answer are marked **`[OI-nn]`** in the text and listed in
-> [Annex A](#annex-a--open-items), addressed to the group that owns each. Where this guide states
-> something those documents do not yet contain, it carries an answer given by the owning group, and
-> confirmation on this pull request has been requested.
+> [Annex A](#annex-a--open-items), addressed to the group that owns each. Some statements here carry
+> an answer from the owning group that is not yet in its published documents.
 >
 > Corrections and contributions from either group are welcome as pull requests. If either group
 > would rather own this document, we will move it to their repository.
