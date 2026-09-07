@@ -124,8 +124,9 @@ Onboard to the list matching the role you play in your pilot use cases. As a wal
 **"WEBUILD - Wallet Providers"**.
 
 Onboarding is requested through the IDunion console
-[[6]](https://console.dev.idunion.info/my-trusted-lists), with the operator's user guide at [[7]](https://docs.dev.idunion.info/docs/user-guide/#onboarding-to-a-trusted-list).
-This is the entry point for the pilot.
+[[6]](https://console.dev.idunion.info/my-trusted-lists), following the operator's onboarding guide
+[[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding). This is the entry
+point for the pilot.
 
 You can browse the Trusted List directory without an account and see each list's name, owner and
 type. An account is needed only to see the entities already onboarded to a list, or to submit a
@@ -147,8 +148,7 @@ If you act in more than one role, you onboard to each corresponding Trusted List
 You need an IDunion console account. No verifiable-credential wallet is involved; logging in with a
 business wallet is not implemented.
 
-Two routes exist [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md)
-[[7]](https://docs.dev.idunion.info/docs/user-guide/#onboarding-to-a-trusted-list):
+Two routes exist [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md):
 
 - **Via invitation** — you receive an invitation by e-mail from the Ecosystem Authority and start
   from the link in it.
@@ -190,12 +190,11 @@ Two things are verified [[2]](https://github.com/webuild-consortium/wp4-trust-gr
 The reviewing group **may** check whether the rest of your data is correct or complete, but is not
 required to. Accuracy of your own data is your responsibility.
 
-The **Trust Infrastructure Responsible Group** reviews. The **WP4 Trust Infrastructure lead and
-co-lead** take the decision, acting as Ecosystem Authority [[4]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/terms-and-entities.md).
-**IDunion is designated for the Trusted List of Wallet Providers**: it hosts the list and operates
-the console. For console questions, or to chase a pending request, write to <info@idunion.eu>.
-
-> For this list IDunion approves by default, and can arrange otherwise on request. **`[OI-05]`**
+The **WP4 Trust Infrastructure lead and co-lead** are the Ecosystem Authority for this list, with the
+Trust Infrastructure Responsible Group reviewing [[4]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/terms-and-entities.md).
+**IDunion** hosts the list, operates the console, and approves onboarding requests by default;
+another arrangement can be set up on request. For console questions, or to chase a pending request,
+write to <info@idunion.eu>. **`[OI-05]`**
 
 **How long it takes.** There is no service level. Requests are usually answered within a day, and
 within several days when the operator's team is away.
@@ -302,7 +301,7 @@ reply by item reference.
 
 | Ref | What is needed | Owner | Blocks |
 |---|---|---|---|
-| **OI-01** | A CSR profile for the wallet-solution certificate: a P-256 example and the OpenSSL commands for key, CSR and certificate generation, in place of the current RSA issued-certificate example. Tracked as [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131), where publication depends on three open points — whether ECDSA is mandated for all certificates, whether wallet attestation status lists are required, and how a wallet solution is bound to its certificate. | Trust Infrastructure group | Step 2 |
+| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, aligned to EN 319 412-6 and replacing the RSA issued-certificate example. The open points on [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131) are answered; the Task 3 update is pending. | Trust Infrastructure group | Step 2 |
 | **OI-04** | Which data set governs the wallet-provider submission. The console form collects organisation contact details and three wallet-solution fields; UC-03 additionally requires the QTSP and single-person-company flags, whether the wallet is for natural or legal persons, the status-list entry URI and the associated body, and does not mention e-mail, phone or website. Either the form or the data contract needs to move. | Console operator / Trust Infrastructure group | Step 4 |
 | **OI-05** | Who approves a wallet-provider application in practice. `terms-and-entities.md` and the Trust Infrastructure group place the decision with the Trust Infrastructure Responsible Group and the WP4 lead and co-lead acting as Ecosystem Authority; the console operator states that IDunion approves by default and can arrange otherwise on request, and the console documentation names the Trusted List Owner. Confirmation that these are one arrangement described at different levels, or a statement of which applies to this list. | Trust Infrastructure group / console operator | Step 5 |
 | **OI-07** | Reissue of the expired Trusted List pointer certificates. Six pointers in the published LoTL — Wallet Providers, PID, PuB-EAA, WRPAC, WRPRC and QEAA — carry an expiry of 16 April 2026; the Credimi, NXD Foundation and Raidiam pointers are in date. A consumer that only verifies the LoTL signature is unaffected; one that follows the Wallet Providers pointer and checks that certificate's validity will reject the list. The operator has confirmed the reissue is in hand. Automated expiry checking is proposed in [wp4-trust-group #132](https://github.com/webuild-consortium/wp4-trust-group/pull/132). | Console operator | Step 6 |
@@ -319,7 +318,7 @@ reply by item reference.
 4. **Consolidated Terms and Entity Definitions** — including the Trust Infrastructure Responsible Group (§4.1). <https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/terms-and-entities.md>
 5. **D4.4 Trust Infrastructure Guidelines**, v1.0, August 2026 — §7 Pilot onboarding guidelines. WE BUILD Portal (portal access may be required): <https://portal.webuildconsortium.eu/system/files/2026-08/D4.4%20-%20Trust%20Infrastructure%20Guidelines_V1.0_FINAL.pdf>
 6. **IDunion console — My Trusted Lists.** <https://console.dev.idunion.info/my-trusted-lists>
-7. **IDunion Trusted List Hosting Service — User Guide.** Console operator product documentation; not a WE BUILD document. <https://docs.dev.idunion.info/docs/user-guide/> · onboarding section: <https://docs.dev.idunion.info/docs/user-guide/#onboarding-to-a-trusted-list>
+7. **IDunion Trusted List Hosting Service — User Guide.** Console operator product documentation; not a WE BUILD document. Key management: <https://docs.dev.idunion.info/docs/user-guide/#key-management>
 8. **WE BUILD List of Trusted Lists (JSON).** <https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json>
 9. **WE BUILD List of Trusted Lists (XML).** <https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.xml>
 10. **LoTL entry for wallet providers.** <https://github.com/webuild-consortium/wp4-trust-group/blob/main/lotl/tl_entries/wallet-provider/idunion.json>
