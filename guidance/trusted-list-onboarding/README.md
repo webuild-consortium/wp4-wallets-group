@@ -102,17 +102,19 @@ Bodies and the European Commission take over these roles [[2]](https://github.co
   CIR 2025/849 Annex 2(a) in MVP+)*
 
 Source: UC-03, "Data to be provided" [[2]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/wallet-provider-onboarding.md).
-The Trusted List and certificate profiles are ETSI TS 119 602 and ETSI EN 319 412-6 §5, via Task 3
+The Trusted List and certificate profiles are ETSI TS 119 602 and ETSI TS 119 412-6 §5, via Task 3
 [[19]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/README.md)
-[[20]](https://www.etsi.org/deliver/etsi_en/319400_319499/31941206/01.00.00_20/en_31941206v010000c.pdf).
+[[20]](https://www.etsi.org/deliver/etsi_ts/119400_119499/11941206/01.02.01_60/ts_11941206v010201p.pdf).
 
 > **The CSR.** Generate an ECDSA P-256 (`prime256v1`) key and a certificate signing request, with the
 > subject built from your legal-entity data above. The `openssl` commands are published by the
 > console operator [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
 >
-> Do not use the certificate example in ETSI EN 319 412-6 §5 as a template: it is an issued
-> certificate rather than a CSR, and it uses RSA. The WE BUILD CSR profile is being prepared under
-> [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131).
+> Do not use the non-normative certificate examples in Task 3's
+> [certificate profiles document](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#non-normative-examples)
+> as a template: they are issued certificates rather than CSRs, and they use RSA. ETSI TS 119 412-6
+> itself carries no example — it states requirements only. The WE BUILD CSR profile is being
+> prepared under [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131).
 > **`[OI-01]`**
 
 ## Step 3 — Identify the correct Trusted List
@@ -301,7 +303,7 @@ reply by item reference.
 
 | Ref | What is needed | Owner | Blocks |
 |---|---|---|---|
-| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, aligned to EN 319 412-6 and replacing the RSA issued-certificate example. The open points on [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131) are answered; the Task 3 update is pending. | Trust Infrastructure group | Step 2 |
+| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, aligned to ETSI TS 119 412-6 and replacing the RSA issued-certificate examples in Task 3. The open points on [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131) are answered; the Task 3 update is pending. | Trust Infrastructure group | Step 2 |
 | **OI-04** | Which data set governs the wallet-provider submission. The console form collects organisation contact details and three wallet-solution fields; UC-03 additionally requires the QTSP and single-person-company flags, whether the wallet is for natural or legal persons, the status-list entry URI and the associated body, and does not mention e-mail, phone or website. Either the form or the data contract needs to move. | Console operator / Trust Infrastructure group | Step 4 |
 | **OI-05** | Who approves a wallet-provider application in practice. `terms-and-entities.md` and the Trust Infrastructure group place the decision with the Trust Infrastructure Responsible Group and the WP4 lead and co-lead acting as Ecosystem Authority; the console operator states that IDunion approves by default and can arrange otherwise on request, and the console documentation names the Trusted List Owner. Confirmation that these are one arrangement described at different levels, or a statement of which applies to this list. | Trust Infrastructure group / console operator | Step 5 |
 | **OI-07** | Reissue of the expired Trusted List pointer certificates. Six pointers in the published LoTL — Wallet Providers, PID, PuB-EAA, WRPAC, WRPRC and QEAA — carry an expiry of 16 April 2026; the Credimi, NXD Foundation and Raidiam pointers are in date. A consumer that only verifies the LoTL signature is unaffected; one that follows the Wallet Providers pointer and checks that certificate's validity will reject the list. The operator has confirmed the reissue is in hand. Automated expiry checking is proposed in [wp4-trust-group #132](https://github.com/webuild-consortium/wp4-trust-group/pull/132). | Console operator | Step 6 |
@@ -331,7 +333,7 @@ reply by item reference.
 17. **LoTL / TL / LoTE debug and testing tool.** <https://lote.credimi.io/>
 18. **Wallet Relying Party Registry Onboarding** — Raidiam sandbox, for Relying Parties. <https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/relying-party-registry-onboarding.md>
 19. **Task 3 — X.509 PKI with ETSI Alignments.** <https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/README.md>
-20. **ETSI EN 319 412-6** — certificate profiles, §5. <https://www.etsi.org/deliver/etsi_en/319400_319499/31941206/01.00.00_20/en_31941206v010000c.pdf>
+20. **ETSI TS 119 412-6 V1.2.1 (2026-04)** — certificate profile requirements for PID, Wallet, EAA, QEAA and PSBEAA providers; clause 5 is the Wallet Provider sign/seal profile. <https://www.etsi.org/deliver/etsi_ts/119400_119499/11941206/01.02.01_60/ts_11941206v010201p.pdf>
 21. **WE BUILD Conformance Specifications** — Architecture group. <https://github.com/webuild-consortium/wp4-architecture/tree/main/conformance-specs>
 22. **`#itb-support`** — Testing group support channel, WE BUILD Slack. <https://we-build-consortium.slack.com/archives/C09K65GLKT2>
 23. **IDunion — Direct Onboarding.** Console operator product documentation, scoped to a test environment; not a WE BUILD document. <https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding>
