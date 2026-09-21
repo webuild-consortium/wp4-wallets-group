@@ -3,7 +3,7 @@
 **Joining the Trusted List of Wallet Providers, and how that relates to the Interoperability Test
 Bed and the Wallet Capability Viewer. A practical guide for Wallet Providers.**
 
-Maintained by the Wallet Providers Group (T4.7) · Draft v0.8 · 7 September 2026
+Maintained by the Wallet Providers Group (T4.7) · Draft v0.8.1 · 21 September 2026
 
 ---
 
@@ -113,9 +113,10 @@ The Trusted List and certificate profiles are ETSI TS 119 602 and ETSI TS 119 41
 > Do not use the non-normative certificate examples in Task 3's
 > [certificate profiles document](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#non-normative-examples)
 > as a template: they are issued certificates rather than CSRs, and they use RSA. ETSI TS 119 412-6
-> itself carries no example — it states requirements only. The WE BUILD CSR profile is being
-> prepared under [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131).
-> **`[OI-01]`**
+> itself carries no example — it states requirements only. The WE BUILD CSR profile, with ECDSA
+> examples and `openssl` commands, is proposed in
+> [wp4-trust-group #135](https://github.com/webuild-consortium/wp4-trust-group/pull/135), which closes
+> [#131](https://github.com/webuild-consortium/wp4-trust-group/issues/131). It is not yet merged. **`[OI-01]`**
 
 ## Step 3 — Identify the correct Trusted List
 
@@ -139,9 +140,10 @@ them through the LoTL.
 anchor for the pilot and is published in JSON [[8]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json)
 and XML [[9]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.xml). Its
 wallet-provider entry [[10]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/lotl/tl_entries/wallet-provider/idunion.json)
-points at `https://tl-api.dev.idunion.info/api/v1/3Krx8SGl/etsi/tl.xml`, the same list as
-`console.dev.idunion.info/trusted-lists/3Krx8SGl`. It is the only wallet-provider Trusted List
-referenced from the WE BUILD LoTL.
+points at the only wallet-provider Trusted List referenced from the WE BUILD LoTL. Normally the
+list identifier in that entry's URL and in the console address are the same. This guide does not
+quote the identifier: IDunion is moving its lists to new endpoints, the identifier changes with the
+move, and while the LoTL still carries the old pointer the two may differ. **`[OI-07]`**
 
 If you act in more than one role, you onboard to each corresponding Trusted List separately.
 
@@ -233,8 +235,9 @@ resolution models.
   conditions for listing are no longer met, or at your own request. Certificates issued for a
   de-listed wallet solution are revoked, and revocation status is published in line with the Trusted
   List and certificate policy.
-- **Check that the pointer certificate is current** before you validate against the pilot lists.
-  Six of the pointer certificates in the published LoTL expired on 16 April 2026. **`[OI-07]`**
+- **Check that the pointer is current** before you validate against the pilot lists. Six of the
+  IDunion pointers in the published LoTL carry certificates that expired on 16 April 2026, and they
+  point at list URLs that are being replaced. **`[OI-07]`**
 - **Audit what is actually published.** The EUDI Trusted Lists Inspector [[16]](https://trust-inspector.credimi.io/)
   audits the WE BUILD LoTL and the referenced Trusted Lists — signatures, schemas, certificate
   chains, list pointers — and produces evidence reports. A debug and testing tool for LoTL, TLs and
@@ -303,12 +306,13 @@ reply by item reference.
 
 | Ref | What is needed | Owner | Blocks |
 |---|---|---|---|
-| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, aligned to ETSI TS 119 412-6 and replacing the RSA issued-certificate examples in Task 3. The open points on [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131) are answered; the Task 3 update is pending. | Trust Infrastructure group | Step 2 |
+| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, aligned to ETSI TS 119 412-6 and replacing the RSA issued-certificate examples in Task 3. The open points on [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131) are answered and the Task 3 update is in [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135): CSR profile, CA-side validation rules, `openssl` commands and ECDSA P-256 examples. Approved on 21 September, not yet merged. Closes on merge, and Step 2 will then point to it. | Trust Infrastructure group | Step 2 |
 | **OI-04** | Which data set governs the wallet-provider submission. The console form collects organisation contact details and three wallet-solution fields; UC-03 additionally requires the QTSP and single-person-company flags, whether the wallet is for natural or legal persons, the status-list entry URI and the associated body, and does not mention e-mail, phone or website. Either the form or the data contract needs to move. | Console operator / Trust Infrastructure group | Step 4 |
 | **OI-05** | Who approves a wallet-provider application in practice. `terms-and-entities.md` and the Trust Infrastructure group place the decision with the Trust Infrastructure Responsible Group and the WP4 lead and co-lead acting as Ecosystem Authority; the console operator states that IDunion approves by default and can arrange otherwise on request, and the console documentation names the Trusted List Owner. Confirmation that these are one arrangement described at different levels, or a statement of which applies to this list. | Trust Infrastructure group / console operator | Step 5 |
-| **OI-07** | Reissue of the expired Trusted List pointer certificates. Six pointers in the published LoTL — Wallet Providers, PID, PuB-EAA, WRPAC, WRPRC and QEAA — carry an expiry of 16 April 2026; the Credimi, NXD Foundation and Raidiam pointers are in date. A consumer that only verifies the LoTL signature is unaffected; one that follows the Wallet Providers pointer and checks that certificate's validity will reject the list. The operator has confirmed the reissue is in hand. Automated expiry checking is proposed in [wp4-trust-group #132](https://github.com/webuild-consortium/wp4-trust-group/pull/132). | Console operator | Step 6 |
+| **OI-07** | Replacement of the six IDunion pointers in the LoTL: Wallet Providers, PID, PuB-EAA, WRPAC, WRPRC and QEAA. As of 21 September the published LoTL (issued 18 September) still points at the old list URLs, with pointer certificates that expired on 16 April 2026; the other six pointer certificates are in date. The old URLs no longer answer (HTTP 404, reported on [wp4-trust-group #139](https://github.com/webuild-consortium/wp4-trust-group/issues/139) on 18 September). IDunion has published replacement lists, with Wallet Providers moving from `3Krx8SGl` to `8djrdSZa`, but they do not yet pass the WP4 CI profile checks, so the pointers have not been switched. The CI checks, including automated expiry checking of the pointer certificates, are in [wp4-trust-group #137](https://github.com/webuild-consortium/wp4-trust-group/pull/137). Still to be stated: when the switch happens, and whether entries on the old lists carry over. | Console operator / Trust Infrastructure group | Steps 3, 6 |
 | **OI-08** | Publication of the Trust Framework Integration test cases and their prerequisites, and an update of the Base Protocols README, which describes the earlier organisation of the test cases. | Testing group | Part B.1 |
 | **OI-10** | A Trust Framework Integration section in the Conformance Overview, so that the result is visible independently of Base Protocols conformance. | Testing group | Part B.3 |
+| **OI-12** | How the wallet solution identifier bound into the certificate is formed and kept unique. [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135) proposes that the certificate's URI `subjectAltName` match the wallet solution URI recorded in the Trusted List of Wallet Providers, but neither it nor UC-03 says how that value is generated or that it is unique. On 21 September a URN form, `urn:eudi:wallet-solution:<identifier>`, was proposed on the pull request to keep it apart from the wallet solution's `https` URI. UC-03 also carries a separate, optional "unique reference identifier of the wallet solution" (CIR 2025/849 Annex 2(a)). The two need to be related, and the consequence for the WRPRC data model and its runtime validation resolved. | Trust Infrastructure group | Step 2 |
 
 ---
 
