@@ -3,7 +3,7 @@
 **Joining the Trusted List of Wallet Providers, and how that relates to the Interoperability Test
 Bed and the Wallet Capability Viewer. A practical guide for Wallet Providers.**
 
-Maintained by the Wallet Providers Group (T4.7) · Draft v0.8.1 · 21 September 2026
+Maintained by the Wallet Providers Group (T4.7) · Draft v0.8.2 · 23 September 2026
 
 ---
 
@@ -20,26 +20,11 @@ Maintained by the Wallet Providers Group (T4.7) · Draft v0.8.1 · 21 September 
 
 ## Purpose and scope
 
-A wallet provider in WE BUILD faces three separate registrations, run by three different groups, and
-they are routinely confused with one another.
+This guide takes a wallet provider through onboarding to the **WE BUILD Trusted List of Wallet
+Providers** (Part A) and points to what follows in the Interoperability Test Bed (Part B).
 
-| | Subject | Owner | Depth here |
-|---|---|---|---|
-| **Part A** | Onboarding to the **WE BUILD Trusted List of Wallet Providers** | WP4 Trust Infrastructure group | **Full procedure.** |
-| **Part B** | The **Interoperability Test Bed**, as the activity that follows | WP4 Testing group | **Pointer only.** The ITB User Guide [[14]](https://github.com/webuild-consortium/wp4-interop-test-bed/blob/main/docs/user-guide-interoperability-test-bed.md) is the procedure. |
-| **Annex C** | The **Wallet Capability Viewer** | Wallet Providers Group (T4.7) | **Summary only.** Its update guide [[12]](https://github.com/webuild-consortium/wp4-wallets-group/blob/main/wallet-capabilities/UPDATING.md) is the procedure. |
-
-Part A covers **administrative onboarding during the pilot (MVP) phase**: eligibility, the data to
-prepare, where to apply, what is reviewed, what you receive, and how to keep the entry current.
-
-**Out of scope.** Onboarding as a PID Provider, QEAA Provider, PuB-EAA Provider, Access Certificate
-Authority or Provider of Registration Certificates — those are separate Trusted Lists with their own
-procedures [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md).
-Relying Parties, which are **not** listed in Trusted Lists at all and register instead in the Raidiam
-sandbox [[18]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/relying-party-registry-onboarding.md).
-The MVP+ (production) model, in which Member State Supervisory Bodies and the European Commission
-take over these roles — summarised in the Base Onboarding Framework [[3]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/onboarding-base.md)
-and UC-03 [[2]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/wallet-provider-onboarding.md).
+**Out of scope:** the other Trusted Lists [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md), Relying Party registration
+[[18]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/relying-party-registry-onboarding.md), and the MVP+ (production) model [[3]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/onboarding-base.md).
 
 **Audience:** wallet providers who are beneficiaries or Associated Partners of the WE BUILD
 consortium.
@@ -51,17 +36,16 @@ and deliverable D4.4 [[5]](https://portal.webuildconsortium.eu/system/files/2026
 
 ## Background — three lists, three different things
 
-If you provide a wallet in WE BUILD, your name may appear on three lists. They are maintained by
-three different groups, they mean three different things, and they are independent of one another.
+Your wallet can appear on three lists, run by different groups. Being on one does not put you on
+the others.
 
 | List | Maintained by | What it means | Establishes trust? |
 |---|---|---|---|
 | **Wallet Capability Viewer** [[11]](https://webuild-consortium.github.io/wp4-wallets-group/) | Wallet Providers Group (T4.7) | What your wallet supports, as you declared it | **No.** Self-declared, not a registry |
-| **WE BUILD Trusted List of Wallet Providers** [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md) | WP4 Trust Infrastructure group | Your wallet solution's trust anchor is published and can be validated | **Yes.** This is the one that matters cryptographically |
-| **ITB Conformance Overview** [[13]](https://webuild-consortium.github.io/wp4-interop-test-bed/docs/conformance-overview.html) | WP4 Testing group | Which ITB test suites you have passed | No, but it is the published evidence of conformance |
+| **WE BUILD Trusted List of Wallet Providers** [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md) | WP4 Trust Infrastructure group | Your wallet solution's trust anchor is published and can be validated | **Yes.** |
+| **ITB Conformance Overview** [[13]](https://webuild-consortium.github.io/wp4-interop-test-bed/docs/conformance-overview.html) | WP4 Testing group | Which ITB test suites you have passed | No. It shows conformance. |
 
-Being on one list does not put you on the others. Most providers will want all three. The Wallet
-Capability Viewer is summarised in [Annex C](#annex-c--the-wallet-capability-viewer-t47).
+The Wallet Capability Viewer is summarised in [Annex C](#annex-c--the-wallet-capability-viewer-t47).
 
 ---
 
@@ -70,12 +54,8 @@ Capability Viewer is summarised in [Annex C](#annex-c--the-wallet-capability-vie
 ## Step 1 — Confirm you are eligible
 
 You must be a **beneficiary or an Associated Partner of the WE BUILD consortium**. In the pilot
-(MVP) phase this is the only eligibility condition [[2]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/wallet-provider-onboarding.md).
-
-There is no conformity-assessment or certification requirement in the pilot. Certification under CIR
-2024/2981 becomes a precondition only in the MVP+ (production) phase, where Member State Supervisory
-Bodies and the European Commission take over these roles [[2]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/wallet-provider-onboarding.md)
-[[3]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/onboarding-base.md).
+(MVP) phase this is the only condition [[2]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/wallet-provider-onboarding.md). No certification is
+required in the pilot; it becomes a precondition in MVP+ (CIR 2024/2981).
 
 ## Step 2 — Prepare your data
 
@@ -107,50 +87,32 @@ The Trusted List and certificate profiles are ETSI TS 119 602 and ETSI TS 119 41
 [[20]](https://www.etsi.org/deliver/etsi_ts/119400_119499/11941206/01.02.01_60/ts_11941206v010201p.pdf).
 
 > **The CSR.** Generate an ECDSA P-256 (`prime256v1`) key and a certificate signing request, with the
-> subject built from your legal-entity data above. The `openssl` commands are published by the
-> console operator [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
+> subject built from your organisation data above. The console operator publishes the `openssl`
+> commands [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
 >
-> Do not use the non-normative certificate examples in Task 3's
+> Do not use the certificate examples in Task 3's
 > [certificate profiles document](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#non-normative-examples)
-> as a template: they are issued certificates rather than CSRs, and they use RSA. ETSI TS 119 412-6
-> itself carries no example — it states requirements only. The WE BUILD CSR profile, with ECDSA
-> examples and `openssl` commands, is proposed in
-> [wp4-trust-group #135](https://github.com/webuild-consortium/wp4-trust-group/pull/135), which closes
-> [#131](https://github.com/webuild-consortium/wp4-trust-group/issues/131). It is not yet merged. **`[OI-01]`**
+> as a template: they are issued certificates, not CSRs, and they use RSA. The WE BUILD CSR profile,
+> with ECDSA examples and `openssl` commands, is proposed in [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135),
+> which closes [#131](https://github.com/webuild-consortium/wp4-trust-group/issues/131). It is not yet merged. **`[OI-01]`**
 
 ## Step 3 — Identify the correct Trusted List
 
-Six Trusted Lists are available for onboarding in the pilot: QEAA Providers, Access Certificate
-Authorities, PID Providers, Providers of Registration Certificates, PuB-EAA Providers, and **Wallet
-Providers** [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md).
-Onboard to the list matching the role you play in your pilot use cases. As a wallet provider that is
-**"WEBUILD - Wallet Providers"**.
-
-Onboarding is requested through the IDunion console
+Onboard to **"WEBUILD - Wallet Providers"** in the IDunion console
 [[6]](https://console.dev.idunion.info/my-trusted-lists), following the operator's onboarding guide
-[[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding). This is the entry
-point for the pilot.
+[[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding). You can browse the lists without an account; you
+need one to see the onboarded entities or to submit a request (Step 4).
 
-You can browse the Trusted List directory without an account and see each list's name, owner and
-type. An account is needed only to see the entities already onboarded to a list, or to submit a
-request of your own (Step 4). A verifier consuming the lists needs no account at all — it resolves
-them through the LoTL.
-
-**How to confirm you have the right list.** The WE BUILD List of Trusted Lists (LoTL) is the trust
-anchor for the pilot and is published in JSON [[8]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json)
-and XML [[9]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.xml). Its
-wallet-provider entry [[10]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/lotl/tl_entries/wallet-provider/idunion.json)
-points at the only wallet-provider Trusted List referenced from the WE BUILD LoTL. Normally the
-list identifier in that entry's URL and in the console address are the same. This guide does not
-quote the identifier: IDunion is moving its lists to new endpoints, the identifier changes with the
-move, and while the LoTL still carries the old pointer the two may differ. **`[OI-07]`**
+**How to confirm you have the right list.** The wallet-provider entry [[10]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/lotl/tl_entries/wallet-provider/idunion.json)
+of the WE BUILD List of Trusted Lists ([JSON [8]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json),
+[XML [9]](https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.xml)) points to it.
+The list identifier in that URL and in the console address are the same.
 
 If you act in more than one role, you onboard to each corresponding Trusted List separately.
 
 ## Step 4 — Submit your onboarding request
 
-You need an IDunion console account. No verifiable-credential wallet is involved; logging in with a
-business wallet is not implemented.
+You need an IDunion console account.
 
 Two routes exist [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md):
 
@@ -164,8 +126,7 @@ Once you reach the onboarding form, both routes are the same:
 1. Fill in the required data about your organisation (Step 2) and continue.
 2. A Certificate Signing Request is created automatically, **or** you upload one you created
    yourself.
-3. The data you entered is digitally signed as part of the request. **This is not a signature in the
-   legal sense.**
+3. The data you entered is signed as part of the request.
 4. You receive a confirmation that your request is under review.
 5. You are notified by e-mail once the Ecosystem Authority approves or rejects it.
 
@@ -180,9 +141,7 @@ organisation name, trade name, street address, city, province or state, postal c
 e-mail, phone, website and terms-and-conditions URL. For wallet-provider lists it adds the wallet
 solution's name, reference ID and URL.
 
-> The form asks for less than UC-03 lists: there is no QTSP or single-person-company flag, no
-> natural-or-legal-person field, no status-list URI and no associated body. Have the full Step 2 set
-> ready. **`[OI-04]`**
+> The form asks for less than UC-03. Have the full Step 2 set ready. **`[OI-04]`**
 
 ## Step 5 — Review and approval
 
@@ -204,27 +163,13 @@ write to <info@idunion.eu>. **`[OI-05]`**
 within several days when the operator's team is away.
 
 **If approved**, you receive a notification, an X.509 certificate for each of your wallet solutions,
-and your entry is added to the Trusted List of Wallet Providers. A Trust List Record is created, a
-`did:web` identifier and DID document are generated and linked to your certificate, and the Trusted
-List XML is regenerated to include your entry [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
+and your entry is added to the Trusted List of Wallet Providers [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
 **If not approved**, you are informed of the result and may be asked for additional data.
 
 **What your published entry is used for.** The certificate in your entry authenticates your wallet
 solution: a verifier takes it from the Trusted List and uses it directly to check your Wallet
-Instance Attestation and key attestation signatures. It is a trust anchor, not a certification
-authority — it issues nothing.
-
-**Trust resolves top down, and stops at your certificate.** A verifier checks the LoTL signature,
-follows the pointer to the Trusted List, verifies that list's own signature, and takes your
-certificate from inside it. Nothing is traced back up: your certificate is not chained to the
-certificate that signs the list. That list-signing certificate is `CA:FALSE` with `keyUsage` limited
-to `digitalSignature` — the ETSI TS 119 612 profile for a list signer, whose only job is to prove the
-list authentic. Running `openssl verify` against it reports errors 79 and 32; nothing chains, so that
-check does not apply.
-
-**Wallet Instance Attestation and key attestation do not chain. WRPAC and WRPRC certificates do** —
-leaf to CA, with that CA an anchor in a LoTE referenced from the LoTL. Same infrastructure, two
-resolution models.
+Instance Attestation and key attestation signatures. It is a trust anchor; it is not chained to the
+certificate that signs the list.
 
 ## Step 6 — Keep your entry current
 
@@ -235,34 +180,27 @@ resolution models.
   conditions for listing are no longer met, or at your own request. Certificates issued for a
   de-listed wallet solution are revoked, and revocation status is published in line with the Trusted
   List and certificate policy.
-- **Check that the pointer is current** before you validate against the pilot lists. Six of the
-  IDunion pointers in the published LoTL carry certificates that expired on 16 April 2026, and they
-  point at list URLs that are being replaced. **`[OI-07]`**
-- **Audit what is actually published.** The EUDI Trusted Lists Inspector [[16]](https://trust-inspector.credimi.io/)
-  audits the WE BUILD LoTL and the referenced Trusted Lists — signatures, schemas, certificate
-  chains, list pointers — and produces evidence reports. A debug and testing tool for LoTL, TLs and
-  LoTEs is also proposed at <https://lote.credimi.io/> [[17]](https://lote.credimi.io/).
+- **Check what is published** with the EUDI Trusted Lists Inspector [[16]](https://trust-inspector.credimi.io/)
+  or the LoTL / TL / LoTE tool [[17]](https://lote.credimi.io/).
 
 ---
 
 # Part B — After onboarding: the Interoperability Test Bed
 
-The Interoperability Test Bed is operated by the WP4 Testing group and is separate from Trusted List
-onboarding. You can be listed without using the ITB, and run the ITB's Base Protocols suite without
-being listed. Where the two meet is in
-[B.4](#b4--the-dependency-on-trusted-list-onboarding).
+The Interoperability Test Bed is run by the WP4 Testing group, separately from Trusted List
+onboarding.
 
 ## B.1 — What the ITB tests
 
 - **Base Protocols suite** [[15]](https://github.com/webuild-consortium/wp4-interop-test-bed/tree/main/tests/base-protocols)
-  — covers CS-01 Credential Issuance and CS-02 Credential Presentation [[21]](https://github.com/webuild-consortium/wp4-architecture/tree/main/conformance-specs).
-  Test cases, matrices and expected endpoint configuration are published. Most providers listed on
-  the Conformance Overview have passed this suite.
-- **"WE BUILD CTS – Trust Framework Integration" suite** — Conformance Test Suite v1.1, August 2026,
-  covering WBCS 001, 002 and 004 including the optional WUA-related checks. In the ITB it is under
-  *Conformance statements → Base Protocols → WE BUILD CTS Trust Framework Integration*. It exercises
-  the same issuance and presentation scenarios as the CS-01 and CS-02 suites and adds the
-  trust-framework validation checks. Its test cases are not yet in the repository. **`[OI-08]`**
+  — CS-01 Credential Issuance and CS-02 Credential Presentation [[21]](https://github.com/webuild-consortium/wp4-architecture/tree/main/conformance-specs).
+  Test cases, matrices and expected endpoint configuration are published. No Trusted List
+  onboarding is needed.
+- **"WE BUILD CTS – Trust Framework Integration" suite** — v1.1, August 2026, covering WBCS 001, 002
+  and 004 (including the optional WUA checks). In the ITB: *Conformance statements → Base Protocols →
+  WE BUILD CTS Trust Framework Integration*. Same scenarios as CS-01 and CS-02, plus the trust checks.
+  For the trust-dependent checks you must be onboarded to the relevant Trusted List. Its test cases
+  are not yet in the repository. **`[OI-08]`**
 
 ## B.2 — Getting access to the ITB
 
@@ -280,39 +218,24 @@ User Guide [[14]](https://github.com/webuild-consortium/wp4-interop-test-bed/blo
 
 Run the test cases, generate the conformance statement report as a PDF, upload it to the
 "Conformance Statement Reports" folder in the Testing group's portal files, and ask on the support
-channel to be listed. The report is checked before the listing is updated
-[[13]](https://webuild-consortium.github.io/wp4-interop-test-bed/docs/conformance-overview.html).
-
-**Trust framework conformance uses the same evidence.** The ITB-generated conformance statement
-report is the evidence; no separate artefact is expected. The Conformance Overview records Base
-Protocols conformance only, and a Trust Framework Integration section is to be added so that this
-result is visible on its own. **`[OI-10]`**
-
-## B.4 — The dependency on Trusted List onboarding
-
-- **Base Protocol conformance — no Trusted List onboarding prerequisite.** The Base Protocols, CS-01
-  Issuance and CS-02 Presentation suites establish protocol-level interoperability.
-- **Trust Framework Integration conformance — Trusted List onboarding is a prerequisite** for the
-  trust-dependent checks. Where a test requires the ITB or the reference implementation to establish
-  trust through the WE BUILD trust infrastructure, the relevant entity must already be onboarded to
-  the appropriate WE BUILD Trusted List.
+channel to be listed [[13]](https://webuild-consortium.github.io/wp4-interop-test-bed/docs/conformance-overview.html).
+The same report is the evidence for the trust suite; the Conformance Overview does not show that
+result yet. **`[OI-10]`**
 
 ---
 
 # Annex A — Open items
 
-Points the published material does not answer. Each is addressed to the group that owns it; please
-reply by item reference.
+Points the published material does not answer. Please reply by item reference.
 
 | Ref | What is needed | Owner | Blocks |
 |---|---|---|---|
-| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, aligned to ETSI TS 119 412-6 and replacing the RSA issued-certificate examples in Task 3. The open points on [wp4-trust-group #131](https://github.com/webuild-consortium/wp4-trust-group/issues/131) are answered and the Task 3 update is in [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135): CSR profile, CA-side validation rules, `openssl` commands and ECDSA P-256 examples. Approved on 21 September, not yet merged. Closes on merge, and Step 2 will then point to it. | Trust Infrastructure group | Step 2 |
-| **OI-04** | Which data set governs the wallet-provider submission. The console form collects organisation contact details and three wallet-solution fields; UC-03 additionally requires the QTSP and single-person-company flags, whether the wallet is for natural or legal persons, the status-list entry URI and the associated body, and does not mention e-mail, phone or website. Either the form or the data contract needs to move. | Console operator / Trust Infrastructure group | Step 4 |
-| **OI-05** | Who approves a wallet-provider application in practice. `terms-and-entities.md` and the Trust Infrastructure group place the decision with the Trust Infrastructure Responsible Group and the WP4 lead and co-lead acting as Ecosystem Authority; the console operator states that IDunion approves by default and can arrange otherwise on request, and the console documentation names the Trusted List Owner. Confirmation that these are one arrangement described at different levels, or a statement of which applies to this list. | Trust Infrastructure group / console operator | Step 5 |
-| **OI-07** | Replacement of the six IDunion pointers in the LoTL: Wallet Providers, PID, PuB-EAA, WRPAC, WRPRC and QEAA. As of 21 September the published LoTL (issued 18 September) still points at the old list URLs, with pointer certificates that expired on 16 April 2026; the other six pointer certificates are in date. The old URLs no longer answer (HTTP 404, reported on [wp4-trust-group #139](https://github.com/webuild-consortium/wp4-trust-group/issues/139) on 18 September). IDunion has published replacement lists, with Wallet Providers moving from `3Krx8SGl` to `8djrdSZa`, but they do not yet pass the WP4 CI profile checks, so the pointers have not been switched. The CI checks, including automated expiry checking of the pointer certificates, are in [wp4-trust-group #137](https://github.com/webuild-consortium/wp4-trust-group/pull/137). Still to be stated: when the switch happens, and whether entries on the old lists carry over. | Console operator / Trust Infrastructure group | Steps 3, 6 |
-| **OI-08** | Publication of the Trust Framework Integration test cases and their prerequisites, and an update of the Base Protocols README, which describes the earlier organisation of the test cases. | Testing group | Part B.1 |
-| **OI-10** | A Trust Framework Integration section in the Conformance Overview, so that the result is visible independently of Base Protocols conformance. | Testing group | Part B.3 |
-| **OI-12** | How the wallet solution identifier bound into the certificate is formed and kept unique. [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135) proposes that the certificate's URI `subjectAltName` match the wallet solution URI recorded in the Trusted List of Wallet Providers, but neither it nor UC-03 says how that value is generated or that it is unique. On 21 September a URN form, `urn:eudi:wallet-solution:<identifier>`, was proposed on the pull request to keep it apart from the wallet solution's `https` URI. UC-03 also carries a separate, optional "unique reference identifier of the wallet solution" (CIR 2025/849 Annex 2(a)). The two need to be related, and the consequence for the WRPRC data model and its runtime validation resolved. | Trust Infrastructure group | Step 2 |
+| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, proposed in [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135) (closes [#131](https://github.com/webuild-consortium/wp4-trust-group/issues/131)). Not yet merged. | Trust Infrastructure group | Step 2 |
+| **OI-04** | Which data set governs the request: the console form or UC-03. | Console operator / Trust Infrastructure group | Step 4 |
+| **OI-05** | Who approves a wallet-provider request: the Ecosystem Authority (WP4 Trust Infrastructure lead and co-lead) or IDunion as console operator. | Trust Infrastructure group / console operator | Step 5 |
+| **OI-08** | Publish the Trust Framework Integration test cases and update the Base Protocols README. | Testing group | Part B.1 |
+| **OI-10** | Add a Trust Framework Integration section to the Conformance Overview. | Testing group | Part B.3 |
+| **OI-12** | How the wallet solution identifier in the certificate is formed and kept unique (a URN form is proposed on [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135)), how it relates to UC-03's optional unique reference identifier, and what it means for the WRPRC. | Trust Infrastructure group | Step 2 |
 
 ---
 
