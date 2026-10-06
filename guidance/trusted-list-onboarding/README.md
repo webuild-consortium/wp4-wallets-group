@@ -3,7 +3,7 @@
 **Joining the Trusted List of Wallet Providers, and how that relates to the Interoperability Test
 Bed and the Wallet Capability Viewer. A practical guide for Wallet Providers.**
 
-Maintained by the Wallet Providers Group (T4.7) · Draft v0.8.2 · 23 September 2026
+Maintained by the Wallet Providers Group (T4.7) · Draft v0.9 · October 2026
 
 ---
 
@@ -86,15 +86,21 @@ The Trusted List and certificate profiles are ETSI TS 119 602 and ETSI TS 119 41
 [[19]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/README.md)
 [[20]](https://www.etsi.org/deliver/etsi_ts/119400_119499/11941206/01.02.01_60/ts_11941206v010201p.pdf).
 
-> **The CSR.** Generate an ECDSA P-256 (`prime256v1`) key and a certificate signing request, with the
-> subject built from your organisation data above. The console operator publishes the `openssl`
-> commands [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
+> **The CSR.** The WE BUILD profile for the wallet solution certificate and its CSR is in Task 3
+> [[24]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#certificate-signing-request-profiles). In short:
 >
-> Do not use the certificate examples in Task 3's
-> [certificate profiles document](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#non-normative-examples)
-> as a template: they are issued certificates, not CSRs, and they use RSA. The WE BUILD CSR profile,
-> with ECDSA examples and `openssl` commands, is proposed in [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135),
-> which closes [#131](https://github.com/webuild-consortium/wp4-trust-group/issues/131). It is not yet merged. **`[OI-01]`**
+> - **One key pair and one certificate per wallet solution.** Never reuse them for another
+>   solution.
+> - **ECDSA P-256** (`prime256v1`) key, CSR signed with `ecdsa-with-SHA256`. RSA is not accepted.
+> - **Subject:** `countryName`, `organizationName`, `organizationIdentifier` and `commonName`,
+>   matching your organisation data above (ETSI EN 319 412-3).
+> - **Requested extensions:** one `keyUsage` setting (the example uses `nonRepudiation`), and a
+>   `subjectAltName` with your contact details, for example a support URI or e-mail. The
+>   `subjectAltName` does not identify the wallet solution.
+>
+> The key signs your Wallet Instance Attestations and key attestations with `ES256`. Copy the
+> `openssl` commands from Task 3 [[24]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#openssl-commands); the console operator also publishes
+> commands [[23]](https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding).
 
 ## Step 3 — Identify the correct Trusted List
 
@@ -169,7 +175,12 @@ and your entry is added to the Trusted List of Wallet Providers [[23]](https://d
 **What your published entry is used for.** The certificate in your entry authenticates your wallet
 solution: a verifier takes it from the Trusted List and uses it directly to check your Wallet
 Instance Attestation and key attestation signatures. It is a trust anchor; it is not chained to the
-certificate that signs the list.
+certificate that signs the list. On the list, the wallet solution is identified by its service name
+and service unique identifier, not by the certificate.
+
+**Status lists.** The Token Status Lists for your Wallet Instance Attestations and key attestations
+can be signed with the same key, or with a separate revocation key and certificate. A separate
+revocation certificate is published as its own service in your Trusted List entry [[24]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md#wallet-provider-signseal-certificate).
 
 ## Step 6 — Keep your entry current
 
@@ -230,12 +241,10 @@ Points the published material does not answer. Please reply by item reference.
 
 | Ref | What is needed | Owner | Blocks |
 |---|---|---|---|
-| **OI-01** | The WE BUILD CSR profile for the wallet-solution certificate, proposed in [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135) (closes [#131](https://github.com/webuild-consortium/wp4-trust-group/issues/131)). Not yet merged. | Trust Infrastructure group | Step 2 |
 | **OI-04** | Which data set governs the request: the console form or UC-03. | Console operator / Trust Infrastructure group | Step 4 |
 | **OI-05** | Who approves a wallet-provider request: the Ecosystem Authority (WP4 Trust Infrastructure lead and co-lead) or IDunion as console operator. | Trust Infrastructure group / console operator | Step 5 |
 | **OI-08** | Publish the Trust Framework Integration test cases and update the Base Protocols README. | Testing group | Part B.1 |
 | **OI-10** | Add a Trust Framework Integration section to the Conformance Overview. | Testing group | Part B.3 |
-| **OI-12** | How the wallet solution identifier in the certificate is formed and kept unique (a URN form is proposed on [#135](https://github.com/webuild-consortium/wp4-trust-group/pull/135)), how it relates to UC-03's optional unique reference identifier, and what it means for the WRPRC. | Trust Infrastructure group | Step 2 |
 
 ---
 
@@ -264,6 +273,7 @@ Points the published material does not answer. Please reply by item reference.
 21. **WE BUILD Conformance Specifications** — Architecture group. <https://github.com/webuild-consortium/wp4-architecture/tree/main/conformance-specs>
 22. **`#itb-support`** — Testing group support channel, WE BUILD Slack. <https://we-build-consortium.slack.com/archives/C09K65GLKT2>
 23. **IDunion — Direct Onboarding.** Console operator product documentation, scoped to a test environment; not a WE BUILD document. <https://docs.dev.idunion.info/docs/user-guide/onboarding/direct-onboarding>
+24. **Certificate profiles for PID, Wallet, EAA, QEAA and PuB-EAA providers** — Task 3, WP4 Trust Infrastructure group: Wallet Provider sign/seal certificate, CSR profile, `openssl` commands. <https://github.com/webuild-consortium/wp4-trust-group/blob/main/task3-x509-pki-etsi/certificate-profiles-pid-wallet-eaa-qeaa-psbeaa-providers-etsi-ts-119-412-6.md>
 
 ---
 
