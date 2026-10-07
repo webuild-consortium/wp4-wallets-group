@@ -3,7 +3,7 @@
 **Joining the Trusted List of Wallet Providers, and how that relates to the Interoperability Test
 Bed and the Wallet Capability Viewer. A practical guide for Wallet Providers.**
 
-Maintained by the Wallet Providers Group (T4.7) · Draft v0.9 · October 2026
+Maintained by the Wallet Providers Group (T4.7) · Draft v0.9.1 · October 2026
 
 ---
 
@@ -11,8 +11,6 @@ Maintained by the Wallet Providers Group (T4.7) · Draft v0.9 · October 2026
 >
 > Onboarding is operated by the **WP4 Trust Infrastructure group**, the test procedures by the **WP4
 > Testing group**. Where this guide and their documents differ, theirs govern.
->
-> Unresolved points are marked **`[OI-nn]`** and listed in [Annex A](#annex-a--open-items).
 >
 > Corrections are welcome as pull requests.
 
@@ -45,7 +43,7 @@ the others.
 | **WE BUILD Trusted List of Wallet Providers** [[1]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md) | WP4 Trust Infrastructure group | Your wallet solution's trust anchor is published and can be validated | **Yes.** |
 | **ITB Conformance Overview** [[13]](https://webuild-consortium.github.io/wp4-interop-test-bed/docs/conformance-overview.html) | WP4 Testing group | Which ITB test suites you have passed | No. It shows conformance. |
 
-The Wallet Capability Viewer is summarised in [Annex C](#annex-c--the-wallet-capability-viewer-t47).
+The Wallet Capability Viewer is summarised in [Annex B](#annex-b--the-wallet-capability-viewer-t47).
 
 ---
 
@@ -147,7 +145,7 @@ organisation name, trade name, street address, city, province or state, postal c
 e-mail, phone, website and terms-and-conditions URL. For wallet-provider lists it adds the wallet
 solution's name, reference ID and URL.
 
-> The form asks for less than UC-03. Have the full Step 2 set ready. **`[OI-04]`**
+> The form asks for less than UC-03. Have the full Step 2 set ready.
 
 ## Step 5 — Review and approval
 
@@ -163,7 +161,7 @@ The **WP4 Trust Infrastructure lead and co-lead** are the Ecosystem Authority fo
 Trust Infrastructure Responsible Group reviewing [[4]](https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/terms-and-entities.md).
 **IDunion** hosts the list, operates the console, and approves onboarding requests by default;
 another arrangement can be set up on request. For console questions, or to chase a pending request,
-write to <info@idunion.eu>. **`[OI-05]`**
+write to <info@idunion.eu>.
 
 **How long it takes.** There is no service level. Requests are usually answered within a day, and
 within several days when the operator's team is away.
@@ -210,8 +208,8 @@ onboarding.
 - **"WE BUILD CTS – Trust Framework Integration" suite** — v1.1, August 2026, covering WBCS 001, 002
   and 004 (including the optional WUA checks). In the ITB: *Conformance statements → Base Protocols →
   WE BUILD CTS Trust Framework Integration*. Same scenarios as CS-01 and CS-02, plus the trust checks.
-  For the trust-dependent checks you must be onboarded to the relevant Trusted List. Its test cases
-  are not yet in the repository. **`[OI-08]`**
+  For the trust-dependent checks you must be onboarded to the relevant Trusted List. As of 7 October
+  2026, its test cases are not in the repository.
 
 ## B.2 — Getting access to the ITB
 
@@ -230,25 +228,12 @@ User Guide [[14]](https://github.com/webuild-consortium/wp4-interop-test-bed/blo
 Run the test cases, generate the conformance statement report as a PDF, upload it to the
 "Conformance Statement Reports" folder in the Testing group's portal files, and ask on the support
 channel to be listed [[13]](https://webuild-consortium.github.io/wp4-interop-test-bed/docs/conformance-overview.html).
-The same report is the evidence for the trust suite; the Conformance Overview does not show that
-result yet. **`[OI-10]`**
+The same report is the evidence for the trust suite; as of 7 October 2026, the Conformance Overview
+does not show that result.
 
 ---
 
-# Annex A — Open items
-
-Points the published material does not answer. Please reply by item reference.
-
-| Ref | What is needed | Owner | Blocks |
-|---|---|---|---|
-| **OI-04** | Which data set governs the request: the console form or UC-03. | Console operator / Trust Infrastructure group | Step 4 |
-| **OI-05** | Who approves a wallet-provider request: the Ecosystem Authority (WP4 Trust Infrastructure lead and co-lead) or IDunion as console operator. | Trust Infrastructure group / console operator | Step 5 |
-| **OI-08** | Publish the Trust Framework Integration test cases and update the Base Protocols README. | Testing group | Part B.1 |
-| **OI-10** | Add a Trust Framework Integration section to the Conformance Overview. | Testing group | Part B.3 |
-
----
-
-# Annex B — References
+# Annex A — References
 
 1. **Onboarding to the Trusted Lists** — WP4 Trust Infrastructure group, pilot procedure. <https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/trusted-lists-onboarding.md>
 2. **UC-03 Wallet Provider Onboarding** — normative use case: actors, goals, preconditions, data model, RACI, main flow, post-onboarding. <https://github.com/webuild-consortium/wp4-trust-group/blob/main/task1-use-cases/subtask1-1-onboarding/wallet-provider-onboarding.md>
@@ -277,7 +262,7 @@ Points the published material does not answer. Please reply by item reference.
 
 ---
 
-# Annex C — The Wallet Capability Viewer (T4.7)
+# Annex B — The Wallet Capability Viewer (T4.7)
 
 Not part of Trusted List onboarding, and it confers no trust.
 
